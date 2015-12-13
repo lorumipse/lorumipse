@@ -4,6 +4,7 @@ from ngram import NGram
 import sys
 import itertools
 import codecs
+import random
 
 DECOMPOSE_LONG_CHARS = True
 
@@ -74,15 +75,64 @@ def split_letters(string):
     return letters
 
 
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+def create_model(word_sets):
+    model = [(init_ngram(word_set), len(word_set)) for word_set in word_sets]
+    return model
 
-text = ['#']
-for line in sys.stdin:
-    text += list(split_letters(line.strip()))
-    text.append('#')
 
-ngram = NGram(3, text)
+def create_model_from_file(word_files):
+    word_sets = []
+    for path in word_files:
+        with codecs.open(path, 'r', 'utf-8') as f:
+            words = read_words(f)
+            word_sets.append(words)
+    model = create_model(word_sets)
+    return model
 
-for seq in ngram.generate_sequences(length=100, sep='#'):
-    print "".join(seq)
+
+def weighted_choice(choices):
+   total = sum(w for c, w in choices)
+   r = random.uniform(0, total)
+   upto = 0
+   for c, w in choices:
+      if upto + w >= r:
+         return c
+      upto += w
+   assert False, "Shouldn't get here"
+
+
+def generate_word(model):
+   ngram = weighted_choice(model)
+   for w in ngram.generate_sequences(length=1, sep='#'):
+       return "".join(w)
+
+
+def init_ngram(training_words):
+    text = ['#']
+    for word in training_words:
+        text += list(split_letters(word))
+        text.append('#')
+    ngram = NGram(3, text)
+    return ngram
+
+
+def read_words(file):
+    words = []
+    for line in file:
+        words.append(line.strip())
+    return words
+ 
+
+if __name__ == "__main__":
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    input_files = sys.argv[1:]
+
+    if len(input_files) == 0:
+        sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+        words = read_words(sys.stdin)
+        model = create_model([words])
+    else:
+        model = create_model_from_file(input_files)
+
+    for i in xrange(100):
+        print generate_word(model)
