@@ -16,6 +16,21 @@ class NGram(object):
             work_hist = self.add_to_history(work_hist, token, self.ngram_order)
             i += 1
 
+    def generate_sequences(self, sep, length=None, history=()):
+        seq = []
+        i = 0
+        if length == 0:
+            return
+        for sym in self.generate(history=(sep)):
+            if sym == sep:
+                yield seq
+                seq = []
+                i += 1
+                if i == length:
+                    return
+            else:
+                seq.append(sym)
+
     def calc_ngram_distr(self, n, tokens):
         distrib = []
         for order in range(n):

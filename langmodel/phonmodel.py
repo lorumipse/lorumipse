@@ -84,4 +84,5 @@ for line in sys.stdin:
 
 ngram = NGram(3, text)
 
-print "".join(ngram.generate(history='#', length=1000)).replace("#", "\n")
+for seq in ngram.generate_sequences(length=100, sep='#'):
+    print "".join(seq)
