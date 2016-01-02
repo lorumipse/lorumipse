@@ -17,7 +17,7 @@ ACC_RULES = [
 
 
 def affix(stem, ana):
-    if ana == "NOUN<ACC>":
+    if ana == "NOUN<CAS<ACC>>":
         return apply_acc_rules(stem)
     else:
         return stem
