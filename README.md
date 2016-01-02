@@ -8,9 +8,9 @@ replaces content words in input sentences with gibberish word forms. The input s
 
 \# _sentence_number_
 
-_word_ <TAB> _lemma_ <TAB> _analysis_
+_word_ \<TAB> _lemma_ \<TAB> _analysis_
 
-_word_ <TAB> _lemma_ <TAB> _analysis_
+_word_ \<TAB> _lemma_ \<TAB> _analysis_
 
 ...
 
