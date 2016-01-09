@@ -105,11 +105,17 @@ def correct_articles(sentence):
 def print_sentence(sentence):
     print " ".join(sentence)
 
-    
-for sentence in read_sentence(sys.stdin):
-    generated_sentence = gibberize_sentence(sentence)
-    print_sentence([word for word, lemma, ana in sentence])
-    print_sentence(generated_sentence)
-    print
 
+def gibberize_file(file):
+    text = []
+    for sentence in read_sentence(file):
+        generated_sentence = gibberize_sentence(sentence)
+        text.append(generated_sentence)
+    return text
+
+
+if __name__ == '__main__':
+    text = gibberize_file(sys.stdin)
+    for sentence in text:
+        print_sentence(generated_sentence)
 
