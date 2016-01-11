@@ -62,21 +62,20 @@ def parse_ana(ana):
 
 
 def gibberize_sentence(sentence):
-    generated_sentence = [generate_word_from_token(token) for token in sentence]
+    generated_sentence = [generate_word_from_token(word, lemma, ana) for word, lemma, ana in sentence]
     generated_sentence = correct_articles(generated_sentence)
     return generated_sentence
     
 
-def generate_word_from_token(token):
-    word, lemma, ana = token
+def generate_word_from_token(word, lemma, ana):
     pos, infl = parse_ana(ana)
     if pos in ["NOUN", "ADJ", "VERB"] and lemma not in KEPT_WORDS:
-        gen_word = generate_word_with_ana(pos, infl)
+        stem, gen_word = generate_word_with_ana(pos, infl)
     elif lemma == "a" and ana == "ART":
-        gen_word = ARTICLE_SYMBOL
+        stem, gen_word = None, ARTICLE_SYMBOL
     else:
-        gen_word = word
-    return gen_word
+        stem, gen_word = lemma, word
+    return gen_word, stem, ana
 
 
 def generate_word_with_ana(pos, infl):
@@ -87,18 +86,19 @@ def generate_word_with_ana(pos, infl):
     elif pos == "VERB":
         stem = generate_word(verb_model)
     word = affix(stem, pos + infl)
-    return word
+    return stem, word
 
 
 def correct_articles(sentence):
     corrected_sentence = []
     for i in xrange(len(sentence)):
-        word = sentence[i]
+        word, lemma, ana = sentence[i]
         if word == ARTICLE_SYMBOL and i + 1 < len(sentence):
-            corrected_word = det(sentence[i+1])
+            next_word, _, _ = sentence[i+1]
+            corrected_word = det(next_word)
         else:
             corrected_word = word
-        corrected_sentence.append(corrected_word)
+        corrected_sentence.append((corrected_word, lemma, ana))
     return corrected_sentence
 
 
