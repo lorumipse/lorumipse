@@ -1,5 +1,21 @@
 # Lórum ipse
 
+## Running the text generator in browser
+
+```
+scripts/setup.sh
+```
+
+Prepares corpus chunks from the limited subset of Hungarian Webcorpus in build/text_template
+
+```
+scripts/run.sh
+```
+
+The browser should be pointed to http://localhost:9999
+
+## Text generation on a template
+
 ```
 gzcat resource/sg3_nom_acc_sentences_xaa.txt.gz | langmodel/gibberize.py | less 
 ```
