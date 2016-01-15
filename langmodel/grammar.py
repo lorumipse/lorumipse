@@ -65,22 +65,22 @@ class Phonology :
         u'ő' : u'ö',
         u'ú' : u'u',
         u'ű' : u'ü',
-    };
+    }
 
     amny_map = {
         u'a' : u'á',
         u'e' : u'é',
-    };
+    }
 
     # magánhangzó-rövidülések
     @staticmethod
     def doMR(ortho) :
-        return Phonology.tr(ortho, Phonology.vtmr_map);
+        return Phonology.tr(ortho, Phonology.vtmr_map)
 
     # utolsó alsó magánhangzó nyúlása
     @staticmethod
     def doAMNY(ortho) :
-        return ortho[0:-1]+Phonology.tr(ortho[-1:], Phonology.amny_map);
+        return ortho[0:-1]+Phonology.tr(ortho[-1:], Phonology.amny_map)
 
     @staticmethod
     def tr(ortho, map) :
@@ -101,12 +101,12 @@ class Phonology :
             'U-,-' : { u'A' : u'a', u'Á' : u'á', u'E' : u'o', u'O' : u'o', u'Ó' : u'ó', u'U' : u'u', u'Ú' : u'ú', u'V' : u'o', u'W' : u'o'},
             '-I,-' : { u'A' : u'e', u'Á' : u'é', u'E' : u'e', u'O' : u'e', u'Ó' : u'ő', u'U' : u'ü', u'Ú' : u'ű', u'V' : u'e', u'W' : u'e'},
             'UI,-' : { u'A' : u'e', u'Á' : u'é', u'E' : u'ö', u'O' : u'ö', u'Ó' : u'ő', u'U' : u'ü', u'Ú' : u'ű', u'V' : u'ö', u'W' : u'e'},
-    };
+    }
 
     @staticmethod
     def interpolateVowels(phonocode, string) :
         if phonocode in Phonology.vowelmaps :
-            return Phonology.tr(string, Phonology.vowelmaps[phonocode]);
+            return Phonology.tr(string, Phonology.vowelmaps[phonocode])
         else :
             return string
 
@@ -194,13 +194,13 @@ class Phonology :
         'w' : 'C',
         'x' : 'C',
         'z' : 'C',
-    };
+    }
 
     @staticmethod
     def isVowel(char) :
         return (char in Phonology.skeletoncode) and (Phonology.skeletoncode[char] == 'V')
 
-    consonant_regex = r'(ddzs|ccs|ddz|dzs|ggy|lly|nny|ssz|tty|zzs|bb|cc|cs|dd|dz|ff|gg|gy|h|hh|jj|k|kk|ll|ly|mm|nn|ny|pp|qq|rr|ss|sz|tt|ty|vv|ww|xx|zs|zz|b|c|d|f|g|j|l|m|n|p|q|r|s|t|v|w|x|z)$'
+    consonant_regex = r'(ddzs|ccs|ddz|dzs|ggy|lly|nny|ssz|tty|zzs|bb|cc|cs|dd|dz|ff|gg|gy|h|hh|jj|k|kk|ll|ly|mm|nn|ny|pp|qq|rr|ss|sz|tt|ty|vv|ww|xx|zs|zz|b|c|d|f|g|j|l|m|n|p|q|r|s|t|v|w|x|z)'
 
     @staticmethod
     def getLastConsonant(ortho) :
@@ -269,7 +269,7 @@ class Phonology :
         'w' : 'ww',
         'x' : 'xx',
         'z' : 'zz',
-    };
+    }
 
     @staticmethod
     def doubleConsonant(cons) :
@@ -282,7 +282,7 @@ class Phonology :
     def doDoubleLastConsonant(ortho) :
         cons = Phonology.getLastConsonant(ortho)
         if cons :
-            return ortho[0:-len(cons)]+Phonology.doubleConsonant(cons);
+            return ortho[0:-len(cons)]+Phonology.doubleConsonant(cons)
         else :
             return ortho
 
@@ -299,7 +299,7 @@ class Phonology :
         'cc' : True,
         'cs' : True,
         'ccs' : True,
-    };
+    }
 
     is_sybyl = {
         's' : True,
@@ -310,7 +310,7 @@ class Phonology :
         'zz' : True,
         'zs' : True,
         'zzs' : True,
-    };
+    }
 
     @staticmethod
     def isAffrikate(cons) :
@@ -342,8 +342,8 @@ class iWordformPhonology :
 class Wordform (iWordformMorphology, iWordformPhonology) :
 
     def __init__(self, lemma=None, ortho=None) :
-        self.lemma = lemma;
-        self.ortho = ortho if ortho else lemma;
+        self.lemma = lemma
+        self.ortho = ortho if ortho else lemma
         self.is_vtmr = False
         self.is_btmr = False
         self.is_opening = False
@@ -407,6 +407,7 @@ class Wordform1 (Wordform) :
         affix.onAfterSuffixed(stem)
         return stem
 
+    
 import unittest
 
 class GrammarTest (unittest.TestCase) :
@@ -429,17 +430,17 @@ class GrammarTest (unittest.TestCase) :
         self.assertEqual(True , Phonology.getPropagatedU(u'föld'), u'föld')
         self.assertEqual(False, Phonology.getPropagatedU(u'kéz'), u'kéz')
 
-        self.assertEqual(False, Phonology.needSuffixI(u'ház'), u'ház');
-        self.assertEqual(True , Phonology.needSuffixI(u'kert'), u'kert');
-        self.assertEqual(True , Phonology.needSuffixI(u'föld'), u'föld');
-        self.assertEqual(True , Phonology.needSuffixI(u'tök'), u'tök');
-        self.assertEqual(True , Phonology.needSuffixI(u'kéz'), u'kéz');
+        self.assertEqual(False, Phonology.needSuffixI(u'ház'), u'ház')
+        self.assertEqual(True , Phonology.needSuffixI(u'kert'), u'kert')
+        self.assertEqual(True , Phonology.needSuffixI(u'föld'), u'föld')
+        self.assertEqual(True , Phonology.needSuffixI(u'tök'), u'tök')
+        self.assertEqual(True , Phonology.needSuffixI(u'kéz'), u'kéz')
 
-        self.assertEqual(False, Phonology.needSuffixU(u'ház'), u'ház');
-        self.assertEqual(False, Phonology.needSuffixU(u'kert'), u'kert');
-        self.assertEqual(True , Phonology.needSuffixU(u'föld'), u'föld');
-        self.assertEqual(True , Phonology.needSuffixU(u'tök'), u'tök');
-        self.assertEqual(False, Phonology.needSuffixU(u'kéz'), u'kéz');
+        self.assertEqual(False, Phonology.needSuffixU(u'ház'), u'ház')
+        self.assertEqual(False, Phonology.needSuffixU(u'kert'), u'kert')
+        self.assertEqual(True , Phonology.needSuffixU(u'föld'), u'föld')
+        self.assertEqual(True , Phonology.needSuffixU(u'tök'), u'tök')
+        self.assertEqual(False, Phonology.needSuffixU(u'kéz'), u'kéz')
 
     def testAMNY(self) :
         self.assertEqual(u'fá', Phonology.doAMNY(u'fa'))
@@ -589,3 +590,8 @@ class GrammarTest (unittest.TestCase) :
         s = Wordform(u'ke')
         self.assertEqual(u'emberke', str(w.appendSuffix(s)))
 
+
+    def testVerb(self):
+        v = Verbum(u"kapál")
+        wordform = v.conjugate([1, 3, 1, 0, 0])
+        self.assertEqual(u"kapál", wordform)
