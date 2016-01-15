@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from basic_morphology import affix, det
+from morphology import affix, det
 from phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
