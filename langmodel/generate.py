@@ -5,22 +5,42 @@ import random
 import sys
 import codecs
 import json
-from gibberize import gibberize_file
+from gibberize import gibberize_file, gibberize_random_init_sentence_from_file
+
+
+INIT_TEMPLATE_FILENAME = "init.txt"
 
 
 def choose_random_file(dir):
-    files = os.listdir(dir)
+    files = [f for f in os.listdir(dir) if f != INIT_TEMPLATE_FILENAME]
     file = random.choice(files)
     return os.path.join(dir, file)
 
 
-def generate_text(dir):
+def gibberize_random_file_from_dir(dir):
     template = choose_random_file(dir)
     with codecs.open(template, 'r', 'utf-8') as f:
         sentences = gibberize_file(f)
         sentences = [add_spacing(capitalize_sentence(sentence)) for sentence in sentences]
-        text = json.dumps(sentences)
-        return text
+        return sentences
+
+
+def generate_init_sentence(dir):
+    init_file_path = os.path.join(dir, INIT_TEMPLATE_FILENAME)
+    with codecs.open(init_file_path, 'r', 'utf-8') as f:
+        init_sentence = gibberize_random_init_sentence_from_file(f)
+    formatted = add_spacing(capitalize_sentence(init_sentence))
+    return formatted
+
+
+def generate_text(dir, init):
+    sentences = []
+    if init:
+        init_sentence = generate_init_sentence(dir)
+        sentences.append(init_sentence)
+    sentences += gibberize_random_file_from_dir(dir)
+    text = json.dumps(sentences)
+    return text
 
 
 def add_spacing(sentence):

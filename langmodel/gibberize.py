@@ -5,6 +5,7 @@ import re
 import os
 import sys
 import codecs
+import random
 from basic_morphology import affix, det
 from phonmodel import create_model_from_file, generate_word
 
@@ -18,10 +19,18 @@ NOUN_TRAINING = ['elekfi-nounstems-A.txt', 'elekfi-nounstems-B.txt', 'elekfi-nou
 ADJ_TRAINING = ['elekfi-adjstems-A.txt', 'elekfi-adjstems-B.txt', 'elekfi-adjstems-C.txt']
 VERB_TRAINING = ['elekfi-verbstems-a.txt', 'elekfi-verbstems-b.txt', 'elekfi-verbstems-c.txt']
 
+NON_CONTENT_NOUNS = [u"ez", u"minden", u"az", u"aki", u"amely", u"ami", u"más", u"egyik", u"saját", u"másik",
+                     u"mely", u"semmi", u"senki",
+                     u"bármely", u"bármi", u"bárki", u"ugyanaz", u"akárki", u"akármi", u"valaki", u"valami", u"ő", u"ők"]
+
 KEPT_WORDS = [u'van', u'ez', u'az', u'kell', u'ő', u'sok', u'mi', u'amely', u'én', u'tud', u'aki', u'lehet', u'minden', u'ami',
-'ki', u'olyan', u'ők', u'más', u'maga', u'mely', u'nincs', u'te', u'egyik', u'ilyen', u'való', u'fog', u'saját']
+'ki', u'olyan', u'ők', u'más', u'maga', u'mely', u'nincs', u'te', u'egyik', u'ilyen', u'való', u'fog', u'saját'] + NON_CONTENT_NOUNS
+
 
 ARTICLE_SYMBOL = "#ART"
+
+LORUM_IPSE_TOKENS = [("Lórum", "Lórum", "NOUN"), ("ipse", "ipse", "NOUN")]
+
 
 def add_resouce_dir_prefix(filenames):
     return [os.path.join(resource_dir, filename) for filename in filenames]
@@ -44,7 +53,7 @@ def read_sentence(file):
         else:
             fields = stripped.split("\t")
             if len(fields) != 3:
-                sys.stderr.write(stripped)
+                sys.stderr.write(line)
                 raise Exception(stripped)
             tokens.append(fields)
     if tokens:
@@ -65,7 +74,22 @@ def gibberize_sentence(sentence):
     generated_sentence = [generate_word_from_token(word, lemma, ana) for word, lemma, ana in sentence]
     generated_sentence = correct_articles(generated_sentence)
     return generated_sentence
-    
+
+
+def gibberize_init_sentence(sentence):
+    i = find_nom_np_end(sentence)
+    gibberized = gibberize_sentence(sentence[i+1:])
+    return LORUM_IPSE_TOKENS + gibberized
+
+
+def find_nom_np_end(sentence):
+    head_index = None
+    for i, (word, lemma, ana) in enumerate(sentence):
+        if ana == "NOUN" and lemma not in NON_CONTENT_NOUNS:
+            head_index = i
+            break
+    return head_index
+
 
 def generate_word_from_token(word, lemma, ana):
     pos, infl = parse_ana(ana)
@@ -114,8 +138,18 @@ def gibberize_file(file):
     return text
 
 
+def gibberize_random_init_sentence_from_file(file):
+    chosen_sentence = None
+    for i, sentence in enumerate(read_sentence(file)):
+        if chosen_sentence is None:
+            chosen_sentence = sentence
+        elif random.random() < 1/float(i+1):
+            chosen_sentence = sentence
+    return gibberize_init_sentence(chosen_sentence)
+
+
 if __name__ == '__main__':
     text = gibberize_file(sys.stdin)
     for sentence in text:
-        print_sentence(generated_sentence)
+        print_sentence(sentence)
 

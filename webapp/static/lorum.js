@@ -26,19 +26,23 @@ var lorum = (function() {
         return text;
     }
 
-    function generate() {
+    function generate(withInitSentence) {
         var deferred = $.Deferred();
-        $.ajax("/generate/").then(function(data) {
+        var url = "/generate/";
+        if (withInitSentence) {
+            url += "init/";
+        }
+        $.ajax(url).then(function(data) {
             var text = formatLorum(data);
             deferred.resolve(text);
         });
         return deferred.promise();
     }
 
-    my.addGeneratedTextToTarget = function(trg_spec) {
+    my.addGeneratedTextToTarget = function(trg_spec, withInitSentence) {
         var trg = $(trg_spec);
         var deferred = $.Deferred();
-        generate().then(function(text) {
+        generate(withInitSentence).then(function(text) {
             trg.append("<p>" + text + "</p>");
             deferred.resolve();
         });
@@ -62,9 +66,9 @@ var lorum = (function() {
 $(function() {
     var target = "#lorumtext";
     $("#more").click(function() {
-        lorum.addGeneratedTextToTarget(target).then(function() {
+        lorum.addGeneratedTextToTarget(target, false).then(function() {
             lorum.highlightLastPara(target);
         });
     });
-    lorum.addGeneratedTextToTarget(target);
+    lorum.addGeneratedTextToTarget(target, true);
 });

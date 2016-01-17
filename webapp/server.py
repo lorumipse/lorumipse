@@ -19,8 +19,9 @@ class LorumIpseHandler(BaseHTTPRequestHandler):
             path = "/static/index.html"
         if path.startswith('/static/') and '..' not in path:
             self.serve_static_file(path[len("/static/"):])
-        elif path == '/generate/':
-            text = generate_text(TEMPLATE_DIR)
+        elif path.startswith('/generate/'):
+            init = "/generate/init/" in path
+            text = generate_text(TEMPLATE_DIR, init)
             self.send_response(200)
             self.send_header("Content-type", "text/json; charset=utf-8")
             self.end_headers()
