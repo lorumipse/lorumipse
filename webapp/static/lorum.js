@@ -26,15 +26,45 @@ var lorum = (function() {
         return text;
     }
 
-    my.generate = function() {
-        $.ajax("/generate/").done(function(data) {
+    function generate() {
+        var deferred = $.Deferred();
+        $.ajax("/generate/").then(function(data) {
             var text = formatLorum(data);
-            $("#lorumtext").html(text);
+            deferred.resolve(text);
         });
+        return deferred.promise();
     }
+
+    my.addGeneratedTextToTarget = function(trg_spec) {
+        var trg = $(trg_spec);
+        var deferred = $.Deferred();
+        generate().then(function(text) {
+            trg.append("<p>" + text + "</p>");
+            deferred.resolve();
+        });
+        return deferred.promise();
+    };
+
+    my.highlightLastPara = function(parent_spec) {
+        var para = parent_spec + " p:last-child";
+        setTimeout(function() {
+            $(para).addClass("highlighted");
+        }, 0);
+        window.scrollTo(0, document.body.scrollHeight);
+        setTimeout(function() {
+            $(para).removeClass("highlighted");
+        }, 500);
+    }
+
     return my;
 })();
 
 $(function() {
-    lorum.generate();
+    var target = "#lorumtext";
+    $("#more").click(function() {
+        lorum.addGeneratedTextToTarget(target).then(function() {
+            lorum.highlightLastPara(target);
+        });
+    });
+    lorum.addGeneratedTextToTarget(target);
 });
