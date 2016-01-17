@@ -7,3 +7,4 @@ template_dir=build/text_template
 rm -r "$template_dir"
 mkdir -p "$template_dir"
 gzcat $root_dir/resource/sg3_nom_acc_sentences_xaa.txt.gz | $script_dir/split_corpus.py "$template_dir/"
+cp $root_dir/resource/init_sentence_template.txt "$template_dir/init.txt"
