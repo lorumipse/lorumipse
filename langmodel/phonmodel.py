@@ -7,6 +7,8 @@ import codecs
 import random
 
 DECOMPOSE_LONG_CHARS = True
+MIN_WORD_LENGTH = 4
+MAX_WORD_LENGTH = 16
 
 complex_chars = ["sz", "cs", "dz", "dzs", "gy", "ly", "ny", "ty", "zs"]
 simple_consonants = ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z"]
@@ -102,9 +104,12 @@ def weighted_choice(choices):
 
 
 def generate_word(model):
-   ngram = weighted_choice(model)
-   for w in ngram.generate_sequences(length=1, sep='#'):
-       return "".join(w)
+    ngram = weighted_choice(model)  # choose vowel harmony
+    max_attempt = 10
+    for w in ngram.generate_sequences(length=max_attempt, sep='#'):
+       if len(w) >= MIN_WORD_LENGTH and len(w) <= MAX_WORD_LENGTH:
+           return "".join(w)
+    raise Exception("could not generate a word within length boundaries")
 
 
 def init_ngram(training_words):
