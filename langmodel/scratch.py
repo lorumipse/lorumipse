@@ -38,7 +38,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
 
     def getOptionalInterfix(self):
         if self.hasOptionalInterfix():
-            return self.lemma[1:1]
+            return self.lemma[1:1+1]
         else:
             return ''
 
@@ -120,7 +120,6 @@ class PossessiveSuffixum(Suffixum, iNumPers):
 
     _input_class = 'iPossessable'
     _output_class = 'Nomen'
-    possessed_numero = 1
 
     suffixmap = {
         1: {
@@ -682,26 +681,24 @@ class iPossessable(object):
 
 class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPers):
 
-     case = 'Nominativus'
-     numero = 1
-     person = 3
-
-     is_jaje = None
-
      def __init__(self, lemma, ortho=None):
          super(Nomen, self).__init__(lemma, ortho)
          self.lemma2 = lemma
+         self.case = 'Nominativus'
+         self.numero = 1
+         self.person = 3
+         self.is_jaje = None
 
      """ Hint.
       """
      def isJaje(self):
-         if self.is_jaje:
+         if self.is_jaje is not None:
              return self.is_jaje; # már adott lexikonban
          if self.isLastVowel():
              return True # mindig
-         if re.search('(s|sz|z|zs|c|cs|dzs|gy|j|ny|ty|tor|ter|er|um)', self.ortho):
+         if re.search('(s|sz|z|zs|c|cs|dzs|gy|j|ny|ty|tor|ter|er|um)$', self.ortho):
              return False # általában
-         if re.search('[bcdfghjklmnprstvxz]{2,}', self.ortho):
+         if re.search('[bcdfghjklmnprstvxz]{2,}$', self.ortho):
              return True # általában
          return False; # egyébként általában nem
 
@@ -1435,7 +1432,54 @@ class Test (unittest.TestCase) :
         self.assertEquals(u'szlavista', unicode(GFactory.parseNP(u'szláv').appendSuffix(GFactory.parseSuffixum(u'ista'))))
         self.assertEquals(u'privatizál', unicode(GFactory.parseNP(u'privát').appendSuffix(GFactory.parseSuffixum(u'izál'))))
 
+    def checkPossessive(self, form, lemma, num, pers):
+        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(num, pers))))
+
+    def checkPossessives(self, lemma, forms):
+        i = 0
+        for num in [1, 3]:
+            for pers in [1, 2, 3]:
+                self.checkPossessive(forms[i], lemma, num, pers)
+                i += 1
+
+    def testPossessive(self):
         self.assertEquals(u'katonasága', unicode(GFactory.parseNP(u'katona').appendSuffix(GFactory.parseSuffixum(u'sÁg', NomenSuffixum)).appendSuffix(PossessiveSuffixum(1, 3))))
+        self.checkPossessives(u'barnulás', [u'barnulásom', u'barnulásod', u'barnulása', u'barnulásunk', u'barnulásotok', u'barnulásuk'])
+        self.checkPossessives(u'pad', [u'padom', u'padod', u'padja', u'padunk', u'padotok', u'padjuk'])
+
+        self.checkPossessive(u'ladája', u'lada', 1, 3)
+        self.checkPossessive(u'ládája', u'láda', 1, 3)
+        self.checkPossessive(u'ládánk', u'láda', 3, 1)
+        self.checkPossessive(u'bikája', u'bika', 1, 3)
+        self.checkPossessive(u'bikánk', u'bika', 3, 1)
+        self.checkPossessive(u'királya', u'király', 1, 3)
+        self.checkPossessive(u'olaja', u'olaj', 1, 3)
+        self.checkPossessive(u'báránya', u'bárány', 1, 3)
+        self.checkPossessive(u'sasa', u'sas', 1, 3)
+        self.checkPossessive(u'perece', u'perec', 1, 3)
+        self.checkPossessive(u'nagyja', u'nagy', 1, 3)
+        self.checkPossessive(u'sárkányja', u'sárkány', 1, 3)
+        self.checkPossessive(u'kupecje', u'kupec', 1, 3)
+        self.checkPossessive(u'kortesje', u'kortes', 1, 3)
+        self.checkPossessive(u'maceszje', u'macesz', 1, 3)
+        self.checkPossessive(u'trapézja', u'trapéz', 1, 3)
+        self.checkPossessive(u'rasszja', u'rassz', 1, 3)
+        self.checkPossessive(u'padja', u'pad', 1, 3)
+        self.checkPossessive(u'embere', u'ember', 1, 3)
+        self.checkPossessive(u'szenátora', u'szenátor', 1, 3)
+        self.checkPossessive(u'minisztere', u'miniszter', 1, 3)
+        self.checkPossessive(u'slágere', u'sláger', 1, 3)
+        self.checkPossessive(u'jubileuma', u'jubileum', 1, 3)
+        self.checkPossessive(u'galambja', u'galamb', 1, 3)
+        self.checkPossessive(u'kertje', u'kert', 1, 3)
+        self.checkPossessive(u'barackja', u'barack', 1, 3)
+        self.checkPossessive(u'csontja', u'csont', 1, 3)
+        self.checkPossessive(u'fánkja', u'fánk', 1, 3)
+        self.checkPossessive(u'gondja', u'gond', 1, 3)
+        self.checkPossessive(u'futballja', u'futball', 1, 3)
+        self.checkPossessive(u'címzettje', u'címzett', 1, 3)
+        self.checkPossessive(u'sakkja', u'sakk', 1, 3)
+        self.checkPossessive(u'cseppje', u'csepp', 1, 3)
 
 
 if __name__ == '__main__':
