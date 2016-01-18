@@ -176,7 +176,7 @@ class PossessorSuffixum(Suffixum):
 class iVerbal(iNumPers):
 
      def getCase(self):
-         return str(self.numero) + str(self.person) + str(self.modd) + str(((10+self.tense) if self.tense < 0 else self.tense)) + str(self.definite)
+         return str(self.numero) + str(self.person) + str(self.mood) + str(((10+self.tense) if self.tense < 0 else self.tense)) + str(self.definite)
 
      def setCase(self, code):
          self.numero = int(code[0])
@@ -221,13 +221,18 @@ class aVerbalSuffixum(Suffixum, iVerbal, iNumPers):
 class VerbalSuffixum1(aVerbalSuffixum):
 
     def __init__(self, numero, person, mood=1, tense=0, definite=0):
+         self.lemma = ''
+         self.ortho = self.lemma
          super(VerbalSuffixum1, self).__init__(numero, person, mood, tense, definite)
          if self.tense == -1: # múlt idő jele
-             self.lemma = self.ortho = 't'
+             self.lemma = 't'
+             self.ortho = self.lemma
          if self.mood == 2 &self.tense == 0: # feltételes mód jele
-             self.lemma = self.ortho = 'n'
+             self.lemma = 'n'
+             self.ortho = self.lemma
          if self.mood == 3: # felszólító mód jele
-             self.lemma = self.ortho = 'j'
+             self.lemma = 'j'
+             self.ortho = self.lemma
 
 
     def onBeforeSuffixed(self, stem):
@@ -267,6 +272,7 @@ class VerbalSuffixum1(aVerbalSuffixum):
     def getInterfix(self, stem):
          if not self.isValidSuffixConcatenation(stem.ortho, self.ortho):
              return Phonology.interpolateVowels(stem.needSuffixPhonocode(), 'A')
+         return self.ortho
 
     def getInvalidSuffixRegexList(self):
          return [
@@ -351,7 +357,8 @@ class VerbalSuffixum2(aVerbalSuffixum):
 
      def __init__(self, numero, person, mood=1, tense=0, definite=0):
          super(VerbalSuffixum2, self).__init__(numero, person, mood, tense, definite)
-         self.lemma = self.ortho = self.paradigm[mood][tense][definite][numero][person]
+         self.lemma = self.paradigm[mood][tense][definite][numero][person]
+         self.ortho = self.lemma
 
      def getInvalidSuffixRegexList(self):
          return [
@@ -370,7 +377,7 @@ class VerbalSuffixum2(aVerbalSuffixum):
 
      def onBeforeSuffixed(self, stem):
          lemma = self.lemma
-         if lemma.indexof('|'):
+         if lemma.find('|'):
              alters = lemma.split('|')
              # Vl/Asz
              if self.matchCase('12100') and stem.isLastAffrSyb():
@@ -411,6 +418,7 @@ class InfinitiveSuffixum(aVerbalSuffixum):
      }
     
      def __init__(self, numero, person, mood=1, tense=0, definite=0):
+         super(InfinitiveSuffixum, self).__init__(numero, person, mood, tense, definite)
          self.lemma = self.paradigm[mood][tense][definite][numero][person]
     
      def onBeforeSuffixed(self, stem):
@@ -427,7 +435,7 @@ class InfinitiveSuffixum(aVerbalSuffixum):
              '/lt,n/'
          ]
 
-class Verbum(Wordform):
+class Verbum(Wordform, iVerbal):
      mood = None
      tense = None
      definite = None
@@ -1073,7 +1081,7 @@ class Caseframe(object):
         strs = []
         for rel in self.relorder:
             strs.append(str(self.getArg(rel)))
-        return implode(' ', array_filter(strs))
+        return ' '.join(filter(lambda x: x, strs))
 
 """ 
  * @todo
@@ -1090,7 +1098,7 @@ class SyntaxTree(object):
          strs = []
          for arg in self.args:
              strs.append(str(arg))
-         return implode(' ', array_filter(strs))
+         return ' '.join(filter(lambda x: x, strs))
 
 class GFactory(object):
     """
@@ -1387,13 +1395,13 @@ class GFactory(object):
         obj.setCase('13100')
         obj.is_btmr = string in GFactory.V_btmr_list
         obj.is_opening = string in GFactory.V_opening_list
-        if array_key_exists(obj.lemma, GFactory.plusV_list):
+        if obj.lemma in GFactory.plusV_list:
             obj.isPlusV = True
             obj.lemma2 = GFactory.plusV_list[obj.lemma]
-        if array_key_exists(obj.lemma, GFactory.SZV_list):
+        if obj.lemma in GFactory.SZV_list:
             obj.isSZV = True
             obj.lemma2 = GFactory.SZV_list[obj.lemma]
-        if array_key_exists(obj.lemma, GFactory.SZDV_list):
+        if obj.lemma in GFactory.SZDV_list:
             obj.isSZDV = True
             obj.lemma2 = GFactory.SZDV_list[obj.lemma][0]
             obj.lemma3 = GFactory.SZDV_list[obj.lemma][1]
@@ -1495,6 +1503,28 @@ class Test (unittest.TestCase) :
         self.checkPossPoss(u'házaiméi', u'ház', 1, 1, 3, 3)
         self.checkPossPoss(u'házaié', u'ház', 1, 3, 3, 1)
         self.checkPossessor(u'Vargáé', u'Varga', 1)
+
+    def testiVerbal(self):
+        V = GFactory.parseV('olvas');
+        self.assertTrue(V.matchCase('13100'));
+        self.assertTrue(V.conjugate(1, 1, 1, 0, 0).matchCase('11100'));
+        self.assertTrue(V.conjugate(1, 2, 3, 0, 3).matchCase('.23.[23]'));
+        self.assertTrue(V.conjugate(3, 2, 1, 0, 0).matchCase('13100|32100'));
+        self.assertTrue(V.conjugate(1, 1, 1, -1, 0).matchCase('..[23]..|...9.'));
+
+    def testInfinitiveConjugation(self):
+        self.checkInfinitiveConjugation(GFactory.parseV(u'olvas'), [u'olvasni', u'olvasnom', u'olvasnod', u'olvasnia', u'olvasnunk', u'olvasnotok', u'olvasniuk']);
+
+    def checkInfinitiveConjugation(self, V, verbforms):
+        conjugations = [[0, 0], [1, 1], [1, 2], [1, 3], [3, 1], [3, 2], [3, 3]]
+        i = 0
+        for conjugation in conjugations:
+            if not verbforms[i]:
+                continue;
+            expected = verbforms[i]
+            actual = unicode(V.makeInfinitive(* conjugation))
+            self.assertEquals(expected, actual)
+            i += 1
 
 if __name__ == '__main__':
     iSuffixumMorphology()
