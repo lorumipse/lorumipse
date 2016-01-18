@@ -1,7 +1,8 @@
 # coding: utf-8
 from grammar import *
+import re
 
-class iSuffixumMorphology():
+class iSuffixumMorphology(object):
     def hasOptionalInterfix(): pass
     def getOptionalInterfix(): pass
     def getNonOptionalSuffix(): pass
@@ -9,7 +10,7 @@ class iSuffixumMorphology():
     def onBeforeSuffixed(stem): pass
     def onAfterSuffixed(stem): pass
 
-class iSuffixumPhonology():
+class iSuffixumPhonology(object):
     def onAssimilated(char, ortho): pass
 
 """
@@ -33,17 +34,17 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
         return True
 
     def hasOptionalInterfix():
-        return (mb_substr(self.lemma, 0, 1) == '_')
+        return self.lemma[0:1] == '_'
 
     def getOptionalInterfix():
         if self.hasOptionalInterfix():
-            return mb_substr(self.lemma, 1, 1)
+            return self.lemma[1:1]
         else:
             return ''
 
     def getNonOptionalSuffix():
         if self.hasOptionalInterfix():
-            return mb_substr(self.lemma, 2)
+            return self.lemma[2:]
         else:
             return self.lemma
 
@@ -58,7 +59,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
     def isValidSuffixConcatenation(ortho_stem, ortho_suffix):
         string = ortho_stem+","+ortho_suffix
         for regex in self.getInvalidSuffixRegexList():
-            if preg_match(regex, string):
+            if re.match(regex, string):
                 return False
         return True
 
@@ -72,7 +73,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
                 interfix = _interfix
             elif stem.isLastVowel():
                 interfix = ''
-            elif isinstance(this, PossessiveSuffixum):
+            elif isinstance(self, PossessiveSuffixum):
                 interfix = _interfix
             else:
                 if self.isValidSuffixConcatenation(stem.ortho, self.ortho):
@@ -82,7 +83,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
         return interfix
 
     def onAssimilated(char, ortho):
-        ortho = mb_substr(ortho, 1)
+        ortho = ortho[1:]
         return ortho
 
     def onBeforeSuffixed(stem):
@@ -98,29 +99,63 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
             stem.is_jaje = False
 
 
-class aVerbalSuffixum:
-     pass
+class iNumPers(object):
 
-class iNumPers:
-     pass
+     def makeNumPers(self, numero = 1, person = 3):
+         self.numero = numero
+         self.person = person
 
-class VerbalHelper:
-     @staticmethod
-     def getCase(that):
-         return str(that.numero) + str(that.person) + str(that.modd) + str(((10+that.tense) if that.tense < 0 else that.tense)) + str(that.definite)
+     def getNumero(self):
+         return self.numero
 
-     @staticmethod
-     def setCase(that, code):
-         that.numer = int(code[0])
-         that.person = int(code[1])
-         that.mood = int(code[2])
-         that.tense = int(code[3])
-         that.definite = int(code[4])
+     def getPerson(self):
+         return self.person
 
-     @staticmethod
-     def matchCase(that, regex):
-         return re.match("^" + regex + "$", that.getCase())
 
+class iVerbal(iNumPers):
+
+     def getCase(self):
+         return str(self.numero) + str(self.person) + str(self.modd) + str(((10+self.tense) if self.tense < 0 else self.tense)) + str(self.definite)
+
+     def setCase(self, code):
+         self.numero = int(code[0])
+         self.person = int(code[1])
+         self.mood = int(code[2])
+         self.tense = int(code[3])
+         self.definite = int(code[4])
+
+     def matchCase(self, regex):
+         return re.match("^" + regex + "$", self.getCase())
+
+
+class aVerbalSuffixum(Suffixum, iVerbal, iNumPers):
+
+    _input_class = 'Verbum';
+    _output_class = 'Verbum';
+
+    paradigm = []
+
+    def __init__(self, numero, person, mood=1, tense=0, definite=0):
+        """
+         * @param $numero = 1 egyes szám, 3 többes szám
+         * @param $person = 1 első személy, 2 második személy, 3 harmadik személy
+         * @param $mood = 1 kijelentő, 2 feltételes, 3 felszólító
+         * @param $tense = -1 múlt, 0 jelen, 1 jövő
+         * @param $definite = 0 alanyi, 3 tárgyas, 2 lAk
+        """
+        self.mood = mood
+        self.tense = tense
+        self.definite = definite
+        self.numero = numero
+        self.person = person
+
+    def onAfterSuffixed(self, stem):
+        stem.mood = self.mood
+        stem.tense = self.tense
+        stem.definite = self.definite
+        stem.numero = self.numero
+        stem.person = self.person
+    
 
 class VerbalSuffixum1(aVerbalSuffixum):
 
@@ -133,8 +168,8 @@ class VerbalSuffixum1(aVerbalSuffixum):
          if self.mood == 3: # felszólító mód jele
              self.lemma = self.ortho = 'j'
 
-    def onBeforeSuffixed(self, stem):
 
+    def onBeforeSuffixed(self, stem):
          if self.tense == -1: # múlt idő jele
              if stem.needVtt(self): # Vtt
                  self.ortho =  Phonology.interpolateVowels(stem.needSuffixPhonocode(), 'Vtt')
@@ -180,6 +215,7 @@ class VerbalSuffixum1(aVerbalSuffixum):
          super(VerbalSuffixum1, self).onAfterSuffixed(stem)
          if self.mood == 3:
              stem.is_opening = True
+
 
 class VerbalSuffixum2(aVerbalSuffixum):
 
@@ -358,16 +394,8 @@ class Verbum(Wordform):
              clone2 = clone1.appendSuffix(VerbalSuffixum2(numero, person, mood, tense, definite))
              return clone2
     
-     # iNumPers {{{
-
      def makeNumPers(self, numero = 1, person = 3):
          return self.conjugate(numero, person, 1, 0, 0)
-    
-     def getNumero(self):
-         return self.numero
-    
-     def getPerson(self):
-         return self.person
     
      def onBeforeSuffixation(self, suffix):
     
@@ -484,15 +512,6 @@ class Verbum(Wordform):
 
          return False; # általában nem
 
-     def getCase(self):
-         return VerbalHelper.getCase(self)
-
-     def setCase(self, code):
-         return VerbalHelper.setCase(self, code)
-
-     def matchCase(self, regex):
-         return VerbalHelper.matchCase(self, regex)
-
      def makeInfinitive(self, numero=0, person=0):
          suffix = InfinitiveSuffixum(numero, person)
          return self.appendSuffix(suffix)
@@ -533,7 +552,7 @@ class Verbum(Wordform):
 
 """ Valid nominal cases in hungarian.
 """
-class iNominalCases:
+class iNominalCases(object):
     def makeCase(self, case):
         pass
     def makeNominativus(self):
@@ -575,7 +594,7 @@ class iNominalCases:
 
 """ Invalid (virtual) nominal cases in hungarian.
  """
-class iVirtualNominalCases:
+class iVirtualNominalCases(object):
      def makeGenitivus(self): pass
      def makeCausalis(self): pass
      #def makeExessivus()
@@ -590,11 +609,11 @@ class iVirtualNominalCases:
 
 """ Invalid (virtual) temporal cases in hungarian.
  """
-class iVirtualTemporalCases:
+class iVirtualTemporalCases(object):
     def makeAntessivus(self): pass
     def makeTemporalis(self): pass # -kor
 
-class iPossessable:
+class iPossessable(object):
     def isJaje(self):
         pass
 
@@ -609,18 +628,6 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
      def __init__(self, lemma, ortho=None):
          super(Nomen, self).__init__(lemma, ortho)
          self.lemma2 = lemma
-
-     # iNumPers {{{
-
-     def makeNumPers(self, numero = 1, person = 3):
-         self.numero = numero
-         self.person = person
-
-     def getNumero(self):
-         return self.numero
-
-     def getPerson(self):
-         return self.person
 
      """ Hint.
       """
@@ -836,7 +843,7 @@ class Adj(Nomen):
          return A
 
 
-class iArgumented:
+class iArgumented(object):
     def addArg(self, arg): pass
 
 
@@ -895,7 +902,7 @@ class ADVP_HNHSZ(HeadedExpression):
  * @pattern Action
  * @principle dependency injection: a konstruktornak adjunk mindent, ami kell
  """
-class SyntaxAction:
+class SyntaxAction(object):
 
      """
       * @pattern Template function, kötelező implementálni
@@ -917,7 +924,7 @@ class SyntaxActionVerbDefault(SyntaxAction):
      context = None
 
      def __init__(self, context):
-         self.context = context
+         self.context = context # Caseframe
 
      def make(self, arg):
          S = self.context.getArg('S')
@@ -932,8 +939,6 @@ class SyntaxActionVerbDefault(SyntaxAction):
  """
 class SyntaxActionMakeNU(SyntaxAction):
 
-    lemma = ''
-
     def __init__(self, lemma):
          self.lemma = lemma
 
@@ -942,8 +947,6 @@ class SyntaxActionMakeNU(SyntaxAction):
          return ADVP
 
 class SyntaxActionMakeArg(SyntaxAction):
-
-    host = None
 
     def __init__(self, host):
          self.host = host
@@ -956,22 +959,21 @@ class SyntaxActionMakeArg(SyntaxAction):
  * @todo(HeadedExpression ?
  * @todo fának kell lennie, ld. [ágál vki [vmi ellen]]
  """
-class Caseframe():
+class Caseframe(object):
 
-    argdef = []
-    arg_action = []
-    args = []
     relorder = 'VSO12'; # standard rel order
 
     """
       * @see msd: szeged_msd_tablak.rtf
     """
     def __init__(self, description):
-         self.defArg('V', SyntaxActionVerbDefault(self))
-         self.argdef = description
+        self.args = {}
+        self.arg_action = {}
+        self.defArg('V', SyntaxActionVerbDefault(self))
+        self.argdef = description
 
     def defArg(self, rel, action):
-         self.arg_action[rel] = action
+        self.arg_action[rel] = action
 
     def setArg(self, rel, arg):
          if self.checkArg(rel, arg):
@@ -1010,7 +1012,7 @@ class Caseframe():
           * p. 30.
         """
         strs = []
-        for rel in str_split(self.relorder):
+        for rel in self.relorder:
             strs.append(str(self.getArg(rel)))
         return implode(' ', array_filter(strs))
 
@@ -1018,7 +1020,7 @@ class Caseframe():
  * @todo
  * @pattern Composite
  """
-class SyntaxTree():
+class SyntaxTree(object):
 
     args = []
 
@@ -1073,7 +1075,7 @@ class SyntaxTree():
  * ...
  """
 
-class GFactory():
+class GFactory(object):
 
      # full list
      N_vtmr_list = [
@@ -1328,4 +1330,36 @@ class GFactory():
          return F
 
 if __name__ == '__main__':
-     print 'OK'
+    iSuffixumMorphology()
+    iSuffixumPhonology()
+    Suffixum()
+    aVerbalSuffixum(1, 3, 1, 0, 0)
+    iNumPers()
+    iVerbal()
+    VerbalSuffixum1(1, 3, 1, 0, 0)
+    VerbalSuffixum2(1, 3, 1, 0, 0)
+    InfinitiveSuffixum(1, 3, 1, 0, 0)
+    Verbum()
+    iNominalCases()
+    iVirtualNominalCases()
+    iVirtualTemporalCases()
+    iPossessable()
+    Nomen('ember', 'ember')
+    AdjSuffixum()
+    Adj('emberes')
+    iArgumented()
+    HeadedExpression('volna', '<ige>')
+    MorphoWord('volna', '<ige>')
+    ADVP_NU('<head>', '<arg>')
+    ADVP_HRHSZ('<head>', '<arg>', '<suffix>')
+    ADVP_HNHSZ('<head>', '<arg>')
+    SyntaxAction()
+    SyntaxActionMakeCase('Nominativus')
+    SyntaxActionVerbDefault(Caseframe('<desc>'))
+    SyntaxActionMakeNU('mellett')
+    SyntaxActionMakeArg('<host>')
+    Caseframe('<desc>')
+    SyntaxTree()
+    GFactory()
+
+    print 'OK'
