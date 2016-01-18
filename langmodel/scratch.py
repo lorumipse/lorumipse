@@ -49,17 +49,17 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
             return self.lemma
 
     def getInvalidSuffixRegexList(self):
-        return array(
-            '/[bcdfghkmptvw],t/',
-            '/[bcdfghklmnpqrstvwyz],[dkmn]/',
-            '/[bcdfghklmnpqrstvwyz]{2,},[bcdfghklmnpqrstvwyz]/',
-            '/[lrsy],t.+/', # @see barnulástok, hoteltek
-        )
+        return [
+            '[bcdfghkmptvw],t',
+            '[bcdfghklmnpqrstvwyz],[dkmn]',
+            '[bcdfghklmnpqrstvwyz]{2,},[bcdfghklmnpqrstvwyz]',
+            '[lrsy],t.+', # @see barnulástok, hoteltek
+        ]
 
     def isValidSuffixConcatenation(self, ortho_stem, ortho_suffix):
         string = ortho_stem+","+ortho_suffix
         for regex in self.getInvalidSuffixRegexList():
-            if re.match(regex, string):
+            if re.search(regex, string):
                 return False
         return True
 

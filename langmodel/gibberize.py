@@ -9,9 +9,6 @@ import random
 from basic_morphology import affix, det
 from phonmodel import create_model_from_file, generate_word
 
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
 
@@ -149,6 +146,8 @@ def gibberize_random_init_sentence_from_file(file):
 
 
 if __name__ == '__main__':
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin)
     text = gibberize_file(sys.stdin)
     for sentence in text:
         print_sentence(sentence)

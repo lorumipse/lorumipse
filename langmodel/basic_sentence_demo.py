@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import os
-from morphology import affix, det
+import sys
+import codecs
+from basic_morphology import det
+from takdav_morphology import affix
 from phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -28,9 +31,12 @@ def generate_sentence():
     adj_stem = generate_word(adj_model)
     adj = affix(adj_stem, "ADJ")
     obj_stem = generate_word(noun_model)
-    obj = affix(obj_stem, "NOUN<ACC>")
+    obj = affix(obj_stem, "NOUN<CAS<ACC>>")
     return [subj_det, subj, verb, u"egy", adj, obj]
 
+sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 for i in xrange(1000):
     print " ".join(generate_sentence())
