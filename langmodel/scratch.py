@@ -160,18 +160,17 @@ class PossessorSuffixum(Suffixum):
     _input_class = 'iPossessable';
     _output_class = 'Nomen';
 
-    def makePossessor(self, possessed_numero = 1):
-        suffixcode = u'é' if possessed_numero == 1 else 'éi';
-        obj = PossessorSuffixum(suffixcode);
-        obj.possessed_numero = possessed_numero;
-        obj.person = 3;
-        obj.is_opening = true;
-        obj.is_vtmr = false;
-        return obj;
+    def __init__(self, possessed_numero = 1):
+        suffixcode = u'é' if possessed_numero == 1 else u'éi';
+        super(PossessorSuffixum, self).__init__(suffixcode)
+        self.possessed_numero = possessed_numero
+        self.person = 3
+        self.is_opening = True
+        self.is_vtmr = False
 
     def onAfterSuffixed(self, stem):
-        stem.is_opening = true;
-        self.numero = stem.numero;
+        stem.is_opening = True
+        self.numero = stem.numero
 
 
 class iVerbal(iNumPers):
@@ -1481,6 +1480,21 @@ class Test (unittest.TestCase) :
         self.checkPossessive(u'sakkja', u'sakk', 1, 3)
         self.checkPossessive(u'cseppje', u'csepp', 1, 3)
 
+    def checkPossPoss(self, form, lemma, a, b, c, d):
+        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(a, b, c)).appendSuffix(PossessorSuffixum(d))))
+
+    def checkPossessor(self, form, lemma, d):
+        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessorSuffixum(d))))
+
+    def testPossessor(self):
+        self.checkPossPoss(u'őseimé', u'ős', 1, 1, 3, 1)
+        self.checkPossPoss(u'őseidéi', u'ős', 1, 2, 3, 3)
+        self.checkPossPoss(u'őseié', u'ős', 1, 3, 3, 1)
+        self.checkPossPoss(u'őseiéi', u'ős', 1, 3, 3, 3)
+        self.checkPossPoss(u'házaimé', u'ház', 1, 1, 3, 1)
+        self.checkPossPoss(u'házaiméi', u'ház', 1, 1, 3, 3)
+        self.checkPossPoss(u'házaié', u'ház', 1, 3, 3, 1)
+        self.checkPossessor(u'Vargáé', u'Varga', 1)
 
 if __name__ == '__main__':
     iSuffixumMorphology()
