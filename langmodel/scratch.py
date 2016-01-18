@@ -1,5 +1,5 @@
 # coding: utf-8
-from grammar import *
+from grammar import Phonology, Wordform
 import re
 
 class iSuffixumMorphology(object):
@@ -22,33 +22,33 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
     _output_class = 'Nomen'
     stop_jaje = False
 
-    def getInputClass():
+    def getInputClass(self):
         return self._input_class
 
-    def getOutputClass():
+    def getOutputClass(self):
         return self._output_class
 
-    def isAMNYRight():
+    def isAMNYRight(self):
         if None != self.is_amny:
             return self.is_amny
         return True
 
-    def hasOptionalInterfix():
+    def hasOptionalInterfix(self):
         return self.lemma[0:1] == '_'
 
-    def getOptionalInterfix():
+    def getOptionalInterfix(self):
         if self.hasOptionalInterfix():
             return self.lemma[1:1]
         else:
             return ''
 
-    def getNonOptionalSuffix():
+    def getNonOptionalSuffix(self):
         if self.hasOptionalInterfix():
             return self.lemma[2:]
         else:
             return self.lemma
 
-    def getInvalidSuffixRegexList():
+    def getInvalidSuffixRegexList(self):
         return array(
             '/[bcdfghkmptvw],t/',
             '/[bcdfghklmnpqrstvwyz],[dkmn]/',
@@ -56,7 +56,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
             '/[lrsy],t.+/', # @see barnulástok, hoteltek
         )
 
-    def isValidSuffixConcatenation(ortho_stem, ortho_suffix):
+    def isValidSuffixConcatenation(self, ortho_stem, ortho_suffix):
         string = ortho_stem+","+ortho_suffix
         for regex in self.getInvalidSuffixRegexList():
             if re.match(regex, string):
@@ -64,7 +64,7 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
         return True
 
     # kötőhang
-    def getInterfix(stem):
+    def getInterfix(self, stem):
         interfix = ''
         if self.hasOptionalInterfix():
             _interfix = self.getOptionalInterfix()
@@ -82,11 +82,11 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
                     interfix = _interfix
         return interfix
 
-    def onAssimilated(char, ortho):
+    def onAssimilated(self, char, ortho):
         ortho = ortho[1:]
         return ortho
 
-    def onBeforeSuffixed(stem):
+    def onBeforeSuffixed(self, stem):
         ortho = self.getNonOptionalSuffix()
         if Phonology.canAssimilate(stem.ortho, ortho, char = 'v'):
             stem.doAssimilate(char)
@@ -94,9 +94,12 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
         ortho = Phonology.interpolateVowels(stem.needSuffixPhonocode(), ortho)
         self.ortho = ortho
 
-    def onAfterSuffixed(stem):
+    def onAfterSuffixed(self, stem):
         if isinstance(stem, Nomen) and self.stop_jaje:
             stem.is_jaje = False
+
+
+class NomenSuffixum(Suffixum): pass
 
 
 class iNumPers(object):
@@ -104,12 +107,72 @@ class iNumPers(object):
      def makeNumPers(self, numero = 1, person = 3):
          self.numero = numero
          self.person = person
+         return self
 
      def getNumero(self):
          return self.numero
 
      def getPerson(self):
          return self.person
+
+
+class PossessiveSuffixum(Suffixum, iNumPers):
+
+    _input_class = 'iPossessable'
+    _output_class = 'Nomen'
+    possessed_numero = 1
+
+    suffixmap = {
+        1: {
+            1: {1 : '_Vm', 2 : '_Vd', 3 : 'A'},
+            3: {1 : '_Unk', 2 : '_VtEk', 3 : 'Uk'},
+        },
+        3: {
+            1: {1 : '_Aim', 2 : '_Aid', 3 : '_Ai'},
+            3: {1 : '_Aink', 2 : '_AitWk', 3 : '_Aik'},
+        },
+     }
+
+    def __init__(self, numero = 1, person = 3, possessed_numero = 1):
+        suffixcode = PossessiveSuffixum.suffixmap[possessed_numero][numero][person];
+        super(PossessiveSuffixum, self).__init__(suffixcode)
+        self.makeNumPers(numero, person)
+        self.possessed_numero = possessed_numero
+        self.is_opening = True
+        self.is_vtmr = True
+        self.is_alternating = True
+
+    def onBeforeSuffixed(self, stem):
+        super(PossessiveSuffixum, self).onBeforeSuffixed(stem);
+        # birtokos A/jA
+        if self.person == 3 and self.possessed_numero == 1 and stem.isJaje():
+            self.ortho = 'j'+self.ortho;
+
+    def onAfterSuffixed(self, stem):
+        stem.is_opening = True;
+        self.numero = stem.numero;
+
+
+class PossessorSuffixum(Suffixum):
+    """ 
+     * Birtokjel
+    """
+
+    _input_class = 'iPossessable';
+    _output_class = 'Nomen';
+
+    def makePossessor(self, possessed_numero = 1):
+        suffixcode = u'é' if possessed_numero == 1 else 'éi';
+        obj = PossessorSuffixum(suffixcode);
+        obj.possessed_numero = possessed_numero;
+        obj.person = 3;
+        obj.is_opening = true;
+        obj.is_vtmr = false;
+        return obj;
+
+    def onAfterSuffixed(self, stem):
+        stem.is_opening = true;
+        self.numero = stem.numero;
 
 
 class iVerbal(iNumPers):
@@ -880,7 +943,7 @@ class ADVP_NU(HeadedExpression):
          return str(self.arg) + ' ' + self.head
 
     def pronominalize(self):
-         return self.head.appendSuffix(PossessiveSuffixum.makeNumPers(self.arg.numero, 3))
+         return self.head.appendSuffix(PossessiveSuffixum(self.arg.numero, 3))
 
 class ADVP_HRHSZ(HeadedExpression):
      suffix = None
@@ -1033,301 +1096,347 @@ class SyntaxTree(object):
              strs.append(str(arg))
          return implode(' ', array_filter(strs))
 
-"""
- * @todo Képzők
- *
- * N . N
- * _Vs s os as es ös
- * né né
- * kA ka ke
- * _VcskA cska cske ocska acska ecske öcske
- * féle féle
- *
- * N . ADJ
- * i i
- * _Vs s os es ös as ás és
- * _jÚ ú ű jú jű
- * ...
- *
- * V . N
- * Ás ás és
- * Ó ó ő
- *
- * V . ADJ
- * Ós ós ős
- * _AtlAn tlan tlen atlan etlen
- * tAlAn
- * hAtÓ ható hető
- * hAtAtlAn hatatlan hetetlen
- *
- * V . NV
- * ni
- * Ó ó ő
- * t t
- * Vtt tt ott ett ött
- * AndÓ andó endő
- * vA va ve
- *
- * V . V
- * _VgAt gat get ogat eget öget
- * _tAt at et tat tet
- * _tAtik 
- * ...
- """
-
 class GFactory(object):
+    """
+     * @todo Képzők
+     *
+     * N . N
+     * _Vs s os as es ös
+     * né né
+     * kA ka ke
+     * _VcskA cska cske ocska acska ecske öcske
+     * féle féle
+     *
+     * N . ADJ
+     * i i
+     * _Vs s os es ös as ás és
+     * _jÚ ú ű jú jű
+     * ...
+     *
+     * V . N
+     * Ás ás és
+     * Ó ó ő
+     *
+     * V . ADJ
+     * Ós ós ős
+     * _AtlAn tlan tlen atlan etlen
+     * tAlAn
+     * hAtÓ ható hető
+     * hAtAtlAn hatatlan hetetlen
+     *
+     * V . NV
+     * ni
+     * Ó ó ő
+     * t t
+     * Vtt tt ott ett ött
+     * AndÓ andó endő
+     * vA va ve
+     *
+     * V . V
+     * _VgAt gat get ogat eget öget
+     * _tAt at et tat tet
+     * _tAtik 
+     * ...
+     """
 
-     # full list
-     N_vtmr_list = [
-         'híd', 'ín', 'nyíl', 'víz',
-         'szűz', 'tűz', 'fű', 'nyű',
-         'kút', 'lúd', 'nyúl', 'rúd', 'úr', 'út', 'szú',
-         'cső', 'kő', 'tő',
-         'ló',
-         'kéz', 'réz', 'mész', 'ész', 'szén', 'név', 'légy', 'ég', 'jég', 'hét', 'tér', 'dér', 'ér', 'bél', 'nyél', 'fél', 'szél', 'dél', 'tél', 'lé',
-         'nyár', 'sár',
-         # A kéttagúak első mghja mindig rövid - egyszerűen az egész alakot lehet rövidíteni.
-         'egér', 'szekér', 'tenyér', 'kenyér', 'levél', 'fedél', 'fenék', 'kerék', 'cserép', 'szemét', 'elég', 'veréb', 'nehéz', 'tehén', 'derék',
-         'gyökér', 'kötél', 'közép',
-         'fazék',
-         'madár', 'szamár', 'agár', 'kanál', 'darázs', 'parázs',
-         'bogár', 'kosár', 'mocsár', 'mozsár', 'pohár', 'fonál',
-         'sugár', 'sudár',
-      ]
-     # @todo tő és toldalék elkülönítése: mít|osz, ennek konstruálásakor legyen lemma=mít, és legyen a "nominális toldalék" osz, képzéskor pedig nem a nominálisból, hanem a lemmából képezzünk. (?)
-     # not full list
-     N_btmr_list = [
-         'aktív', 'vízió', 'miniatűr', 'úr', 'fúzió', 'téma', 'szláv', 'privát',
-         'náció', 'analízis', 'mítosz', 'motívum', 'stílus',
-         'kultúra', 'múzeum', 'pasztőr', 'periódus', 'paródia',
-         'kódex', 'filozófia', 'história', 'prémium', 'szintézis',
-         'hérosz', 'matéria', 'klérus', 'május', 'banális',
-         'elegáns',
-      ]
-     # not full list
-     # not opening e.g.: gáz bűz rés
-     N_opening_list = ['út', 'nyár', 'ház', 'tűz', 'víz', 'föld', 'zöld', 'nyúl', 'híd', 'nyíl', 'bátor', 'ajak', 'kazal', 'ló', 'hó', 'fű', 'hazai']
+    # full list
+    N_vtmr_list = [
+        u'híd', u'ín', u'nyíl', u'víz',
+        u'szűz', u'tűz', u'fű', u'nyű',
+        u'kút', u'lúd', u'nyúl', u'rúd', u'úr', u'út', u'szú',
+        u'cső', u'kő', u'tő',
+        u'ló',
+        u'kéz', u'réz', u'mész', u'ész', u'szén', u'név', u'légy', u'ég', u'jég', u'hét', u'tér', u'dér', u'ér', u'bél', u'nyél', u'fél', u'szél', u'dél', u'tél', u'lé',
+        u'nyár', u'sár',
+        # A kéttagúak első mghja mindig rövid - egyszerűen az egész alakot lehet rövidíteni.
+        u'egér', u'szekér', u'tenyér', u'kenyér', u'levél', u'fedél', u'fenék', u'kerék', u'cserép', u'szemét', u'elég', u'veréb', u'nehéz', u'tehén', u'derék',
+        u'gyökér', u'kötél', u'közép',
+        u'fazék',
+        u'madár', u'szamár', u'agár', u'kanál', u'darázs', u'parázs',
+        u'bogár', u'kosár', u'mocsár', u'mozsár', u'pohár', u'fonál',
+        u'sugár', u'sudár',
+        ]
 
-     # not full list
-     N_jaje = {
-         'nagy': True,
-         'pad': True,
-         'sárkány': True,
-         'kupec': True,
-         'kortes': True,
-         'macesz': True,
-         'trapéz': True,
-         'rassz': True,
-         'miatt': False,
-      }
-     # is full list? latin/english name?
-     N_alternating_list = {
-         'ajak': 'ajk',
-         'bagoly': 'bagly',
-         'bajusz': 'bajsz',
-         'bátor': 'bátr',
-         'dolog': 'dolg',
-         'haszon': 'haszn',
-         'izom': 'izm',
-         'kazal': 'kazl',
-         'lepel': 'lepl',
-         'majom': 'majm',
-         'piszok': 'piszk',
-         'torony': 'torny',
-         'tücsök': 'tücsk',
-         'tükör': 'tükr',
-         'tülök': 'tülk',
-         'vacak': 'vack',
-         'álom': 'álm',
-         # v-vel bővülő tövek, nem teljes lista
-         'ló': 'lov',
-         'fű': 'füv',
-         'hó': 'hav',
-         # hangátvetéses váltakozás, nem teljes lista
-         'teher': 'terh',
-         'pehely': 'pelyh',
-         'kehely': 'kelyh',
-      }
-     needSuffixI = {
-         'híd': False,
-         'nyíl': False,
-         'oxigén': True,
-         'valami': True,
-         'valaki': True,
-      }
-     def parseNP(self, string):
-         obj = Nomen(string)
-         obj.is_vtmr = string in self.N_vtmr_list
-         obj.is_btmr = string in self.N_btmr_list
-         obj.is_opening = string in self.N_opening_list
-         if isset(self.N_jaje[string]):
-             obj.is_jaje = self.N_jaje[string]
-         if isset(self.needSuffixI[string]):
-             obj.needSuffixI = self.needSuffixI[string]
-         obj.is_alternating = isset(self.N_alternating_list[string])
-         if obj.is_alternating:
-             obj.lemma2 = self.N_alternating_list[string]
-         return obj
+    # @todo tő és toldalék elkülönítése: mít|osz, ennek konstruálásakor legyen lemma=mít, és legyen a "nominális toldalék" osz, képzéskor pedig nem a nominálisból, hanem a lemmából képezzünk. (?)
+    # not full list
+    N_btmr_list = [
+        u'aktív', u'vízió', u'miniatűr', u'úr', u'fúzió', u'téma', u'szláv', u'privát',
+        u'náció', u'analízis', u'mítosz', u'motívum', u'stílus',
+        u'kultúra', u'múzeum', u'pasztőr', u'periódus', u'paródia',
+        u'kódex', u'filozófia', u'história', u'prémium', u'szintézis',
+        u'hérosz', u'matéria', u'klérus', u'május', u'banális',
+        u'elegáns',
+        ]
 
-     def parseADJ(self, string):
-         obj = GFactory.parseNP(string).cloneAs('Adj')
-         obj.is_opening = True; # a melléknevek túlnyomó többsége nyitótővű
-         return obj
+    # not full list
+    # not opening e.g.: gáz bűz rés
+    N_opening_list = [u'út', u'nyár', u'ház', u'tűz', u'víz', u'föld', u'zöld', u'nyúl', u'híd', u'nyíl', u'bátor', u'ajak', u'kazal', u'ló', u'hó', u'fű', u'hazai']
 
-     # not full list
-     suffixum_vtmr_list = [
-         '_Vk', # többesjel
-         '_Vt', # tárgyrag
-         # birtokos személyragok
-         'Vs', # melléknévképző
-         'Az', # igeképző
-         '_VcskA', # kicsinyítő képző
-      ]
-     # not full list
-     suffixum_btmr_list = [
-         'ista',
-         'izál',
-         'izmus',
-         'ikus',
-         'atív',
-         'itás',
-         'ális',
-         'íroz',
-         'nál', # ? fuzionál
-      ]
-     # is full list?
-     suffixum_opening_list = [
-         '_Vk', # többesjel
-         # birtokos személyjelek
-         '_Vbb', # középfok jele 
-         # múlt idő jele 
-         # felszólító j 
-      ]
-     suffixum_not_AMNY_right_list = [
-         'kor', 'ista', 'izmus', # stb. átlátszatlan toldalékok
-         'szOr', 'sÁg', 'i', 'ként',
-      ]
-     # is full list? latin/english name?
-     suffixum_alternating_list = [
-         '_Vt', # tárgyrag
-         'On', # Superessivus
-         '_Vk', # többesjel
-         # birtokos személyragok
-         'VstUl',
-         'Vs', # melléknévképző
-         'Vnként',
-         '_VcskA', # kicsinyítő képző
-      ]
-     suffixum_classes = {
-         'Ás': ['Verbum', 'Nomen'],
-         'Ul': ['Nomen', 'Verbum'],
-      }
-     suffixum_stop_jaje_list = ['sÁg']
+    # not full list
+    N_jaje = {
+        u'nagy': True,
+        u'pad': True,
+        u'sárkány': True,
+        u'kupec': True,
+        u'kortes': True,
+        u'macesz': True,
+        u'trapéz': True,
+        u'rassz': True,
+        u'miatt': False,
+        }
 
-     def parseSuffixum(self, string):
-         obj = Suffixum(string)
-         obj.is_vtmr = string in self.suffixum_vtmr_list
-         obj.is_btmr = string in self.suffixum_btmr_list
-         obj.is_opening = string in self.suffixum_opening_list
-         obj.is_amny = not string in self.suffixum_not_AMNY_right_list
-         obj.is_alternatstring in self.suffixum_alternating_list
-         obj.stop_jaje = string, self.suffixum_stop_jaje_list in True
+    # is full list? latin/english name?
+    N_alternating_list = {
+        u'ajak': u'ajk',
+        u'bagoly': u'bagly',
+        u'bajusz': u'bajsz',
+        u'bátor': u'bátr',
+        u'dolog': u'dolg',
+        u'haszon': u'haszn',
+        u'izom': u'izm',
+        u'kazal': u'kazl',
+        u'lepel': u'lepl',
+        u'majom': u'majm',
+        u'piszok': u'piszk',
+        u'torony': u'torny',
+        u'tücsök': u'tücsk',
+        u'tükör': u'tükr',
+        u'tülök': u'tülk',
+        u'vacak': u'vack',
+        u'álom': u'álm',
+        # v-vel bővülő tövek, nem teljes lista
+        u'ló': u'lov',
+        u'fű': u'füv',
+        u'hó': u'hav',
+        # hangátvetéses váltakozás, nem teljes lista
+        u'teher': u'terh',
+        u'pehely': u'pelyh',
+        u'kehely': u'kelyh',
+        }
 
-         if isset(self.suffixum_classes[string]):
-             (_input_class, _output_class) = self.suffixum_classes[string]
-         else:
-             _input_class = 'Nomen'
-             _output_class = 'Nomen'
-         obj._input_class = _input_class
-         obj._output_class = _output_class
-         return obj
+    needSuffixI = {
+        u'híd': False,
+        u'nyíl': False,
+        u'oxigén': True,
+        u'valami': True,
+        u'valaki': True,
+        }
 
-     # vtmr verbs, not full list: 
-     # ir-at sziv-attyú tür-elem bün-tet szur-ony buj-kál huz-at usz-oda szöv-és vag-dal
-     V_btmr_list = [
-         'ír',
-         'szív',
-         'tűr',
-         'bűn',
-         'szúr',
-         'búj',
-         'húz',
-         'úsz',
-         'sző',
-         'vág',
-      ]
-     V_opening_list = [
-         'zöldül',
-      ]
-     # full list: lő nő sző fő ró
-     plusV_list = {'lő': 'löv', 'nő': 'növ', 'sző': 'szöv', 'fő': 'föv', 'ró': 'rov'}
+    @staticmethod
+    def parseNP(string):
+        obj = Nomen(string)
+        obj.is_vtmr = string in GFactory.N_vtmr_list
+        obj.is_btmr = string in GFactory.N_btmr_list
+        obj.is_opening = string in GFactory.N_opening_list
+        if string in GFactory.N_jaje:
+            obj.is_jaje = GFactory.N_jaje[string]
+        if string in GFactory.needSuffixI:
+            obj.needSuffixI = GFactory.needSuffixI[string]
+        obj.is_alternating = string in GFactory.N_alternating_list
+        if obj.is_alternating:
+            obj.lemma2 = GFactory.N_alternating_list[string]
+        return obj
 
-     # full list: tesz lesz vesz hisz visz eszik iszik
-     # @todo -Ó -Ás: evő, evés, alvó, alvás ; -ni: enni, aludni
-     SZV_list = {'tesz': 'te', 'lesz': 'le', 'vesz': 've', 'hisz': 'hi', 'visz': 'vi', 'esz': 'e', 'isz': 'i'}
 
-     # @todo alszik ; -Ó -Ás: alvó, alvás ; -ni: aludni
-     SZDV_list = {
-         # @corpus sok -kVd(ik) képzős ige
-         'alsz': ['alud', 'alv'],
-         'feksz': ['feküd', 'fekv'],
-         'haragsz': ['haragud', 'haragv'],
-         'cseleksz': ['cseleked', 'cselekv'],
-         'dicseksz': ['dicseked', 'dicsekv'],
-         'töreksz': ['töreked', 'törekv'],
-         # @corpus csak deverb és denom -Vd és -kOd képzős igék között
-         'öregsz': ['öreged', 'öreged'],
-         'veszeksz': ['veszeked', 'veszeked'],
-      }
-     # @corpus hangkivetéses igék: vándorol/vándorlunk
-     # _Vl _Vz dVkVl _Vg képzős igék többsége, pl. vándorol, céloz, haldokol, mosolyog, és még söpör, sodor
-     #'szerez': 'szerző',
-     #'töröl': 'törlő',
-     #'becsül': 'becsl',
-     #'őriz': 'őrz',
+    @staticmethod
+    def parseADJ(string):
+        obj = GFactory.parseNP(string).cloneAs('Adj')
+        obj.is_opening = True; # a melléknevek túlnyomó többsége nyitótővű
+        return obj
 
-     needSuffixI_verb_list = {
-         'isz': False,
-      }
-     # @corpus -z képzős igék általában, sok -kVd(ik) képzős ige
-     ikes = {
-         'esz': True,
-         'isz': True,
-         'alsz': True,
-         'feksz': True,
-         'haragsz': True,
-         'cseleksz': True,
-         'dicseksz': True,
-         'töreksz': True,
-         'öregsz': True,
-         'veszeksz': True,
-         'kardoskod': True,
-      }
+    # not full list
+    suffixum_vtmr_list = [
+        u'_Vk', # többesjel
+        u'_Vt', # tárgyrag
+        # birtokos személyragok
+        u'Vs', # melléknévképző
+        u'Az', # igeképző
+        u'_VcskA', # kicsinyítő képző
+        ]
 
-     def parseV(self, string):
-         obj = Verbum(string)
-         obj.setCase('13100')
-         obj.is_btmr = string in self.V_btmr_list
-         obj.is_opening = string in self.V_opening_list
-         if array_key_exists(obj.lemma, self.plusV_list):
-             obj.isPlusV = True
-             obj.lemma2 = self.plusV_list[obj.lemma]
-         if array_key_exists(obj.lemma, self.SZV_list):
-             obj.isSZV = True
-             obj.lemma2 = self.SZV_list[obj.lemma]
-         if array_key_exists(obj.lemma, self.SZDV_list):
-             obj.isSZDV = True
-             obj.lemma2 = self.SZDV_list[obj.lemma][0]
-             obj.lemma3 = self.SZDV_list[obj.lemma][1]
-         if isset(self.needSuffixI_verb_list[string]):
-             obj.needSuffixI = self.needSuffixI_verb_list[string]
-         if isset(self.ikes[string]):
-             obj.ikes = self.ikes[string]
-         return obj
+    # not full list
+    suffixum_btmr_list = [
+        u'ista',
+        u'izál',
+        u'izmus',
+        u'ikus',
+        u'atív',
+        u'itás',
+        u'ális',
+        u'íroz',
+        u'nál', # ? fuzionál
+        ]
 
-     def createCaseframe(self, description):
-         F = Caseframe(description)
-         return F
+    # is full list?
+    suffixum_opening_list = [
+        u'_Vk', # többesjel
+        # birtokos személyjelek
+        u'_Vbb', # középfok jele 
+        # múlt idő jele 
+        # felszólító j 
+        ]
+
+    suffixum_not_AMNY_right_list = [
+        u'kor', u'ista', u'izmus', # stb. átlátszatlan toldalékok
+        u'szOr', u'sÁg', u'i', u'ként',
+        ]
+
+    # is full list? latin/english name?
+    suffixum_alternating_list = [
+        u'_Vt', # tárgyrag
+        u'On', # Superessivus
+        u'_Vk', # többesjel
+        # birtokos személyragok
+        u'VstUl',
+        u'Vs', # melléknévképző
+        u'Vnként',
+        u'_VcskA', # kicsinyítő képző
+        ]
+
+    suffixum_classes = {
+        u'Ás': ['Verbum', 'Nomen'],
+        u'Ul': ['Nomen', 'Verbum'],
+        }
+
+    suffixum_stop_jaje_list = [u'sÁg']
+
+    @staticmethod
+    def parseSuffixum(string, cls=Suffixum):
+        obj = cls(string)
+        obj.is_vtmr = string in GFactory.suffixum_vtmr_list
+        obj.is_btmr = string in GFactory.suffixum_btmr_list
+        obj.is_opening = string in GFactory.suffixum_opening_list
+        obj.is_amny = not string in GFactory.suffixum_not_AMNY_right_list
+        obj.is_alternating = string in GFactory.suffixum_alternating_list
+        obj.stop_jaje = string in GFactory.suffixum_stop_jaje_list
+
+        if string in GFactory.suffixum_classes:
+            (_input_class, _output_class) = GFactory.suffixum_classes[string]
+        else:
+            _input_class = 'Nomen'
+            _output_class = 'Nomen'
+        obj._input_class = _input_class
+        obj._output_class = _output_class
+        return obj
+
+    # vtmr verbs, not full list: 
+    # ir-at sziv-attyú tür-elem bün-tet szur-ony buj-kál huz-at usz-oda szöv-és vag-dal
+    V_btmr_list = [
+            u'ír',
+            u'szív',
+            u'tűr',
+            u'bűn',
+            u'szúr',
+            u'búj',
+            u'húz',
+            u'úsz',
+            u'sző',
+            u'vág',
+            ]
+
+    V_opening_list = [
+            u'zöldül',
+            ]
+
+    # full list: lő nő sző fő ró
+    plusV_list = {u'lő': u'löv', u'nő': u'növ', u'sző': u'szöv', u'fő': u'föv', u'ró': u'rov'}
+
+    # full list: tesz lesz vesz hisz visz eszik iszik
+    # @todo -Ó -Ás: evő, evés, alvó, alvás ; -ni: enni, aludni
+    SZV_list = {u'tesz': u'te', u'lesz': u'le', u'vesz': u've', u'hisz': u'hi', u'visz': u'vi', u'esz': u'e', u'isz': u'i'}
+
+    # @todo alszik ; -Ó -Ás: alvó, alvás ; -ni: aludni
+    SZDV_list = {
+            # @corpus sok -kVd(ik) képzős ige
+            u'alsz': [u'alud', u'alv'],
+            u'feksz': [u'feküd', u'fekv'],
+            u'haragsz': [u'haragud', u'haragv'],
+            u'cseleksz': [u'cseleked', u'cselekv'],
+            u'dicseksz': [u'dicseked', u'dicsekv'],
+            u'töreksz': [u'töreked', u'törekv'],
+            # @corpus csak deverb és denom -Vd és -kOd képzős igék között
+            u'öregsz': [u'öreged', u'öreged'],
+            u'veszeksz': [u'veszeked', u'veszeked'],
+            }
+
+    # @corpus hangkivetéses igék: vándorol/vándorlunk
+    # _Vl _Vz dVkVl _Vg képzős igék többsége, pl. vándorol, céloz, haldokol, mosolyog, és még söpör, sodor
+    # u'szerez': u'szerző',
+    # u'töröl': u'törlő',
+    # u'becsül': u'becsl',
+    # u'őriz': u'őrz',
+
+    needSuffixI_verb_list = {
+        u'isz': False,
+        }
+
+    # @corpus -z képzős igék általában, sok -kVd(ik) képzős ige
+    ikes = {
+        u'esz': True,
+        u'isz': True,
+        u'alsz': True,
+        u'feksz': True,
+        u'haragsz': True,
+        u'cseleksz': True,
+        u'dicseksz': True,
+        u'töreksz': True,
+        u'öregsz': True,
+        u'veszeksz': True,
+        u'kardoskod': True,
+        }
+
+    @staticmethod
+    def parseV(string):
+        obj = Verbum(string)
+        obj.setCase('13100')
+        obj.is_btmr = string in GFactory.V_btmr_list
+        obj.is_opening = string in GFactory.V_opening_list
+        if array_key_exists(obj.lemma, GFactory.plusV_list):
+            obj.isPlusV = True
+            obj.lemma2 = GFactory.plusV_list[obj.lemma]
+        if array_key_exists(obj.lemma, GFactory.SZV_list):
+            obj.isSZV = True
+            obj.lemma2 = GFactory.SZV_list[obj.lemma]
+        if array_key_exists(obj.lemma, GFactory.SZDV_list):
+            obj.isSZDV = True
+            obj.lemma2 = GFactory.SZDV_list[obj.lemma][0]
+            obj.lemma3 = GFactory.SZDV_list[obj.lemma][1]
+        if string in GFactory.needSuffixI_verb_list:
+            obj.needSuffixI = GFactory.needSuffixI_verb_list[string]
+        if string in GFactory.ikes:
+            obj.ikes = GFactory.ikes[string]
+        return obj
+
+    @staticmethod
+    def createCaseframe(description):
+        return Caseframe(description)
+
+import unittest
+
+class Test (unittest.TestCase) :
+
+    def testLexikon(self):
+        N = GFactory.parseNP(u'ember');
+        self.assertFalse(N.isVTMR());
+
+        N = GFactory.parseNP(u'út');
+        self.assertTrue(N.isVTMR());
+
+        su = GFactory.parseSuffixum(u'_Vk');
+        self.assertTrue(su.isVTMR());
+
+        self.assertEquals(u'aktivista', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'ista'))))
+        self.assertEquals(u'aktivizál', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'aktivizmus', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izmus'))))
+        self.assertEquals(u'aktivitás', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'itás'))))
+        self.assertEquals(u'miniatürizál', unicode(GFactory.parseNP(u'miniatűr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'urizál', unicode(GFactory.parseNP(u'úr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'fuzionál', unicode(GFactory.parseNP(u'fúzió').appendSuffix(GFactory.parseSuffixum(u'nál'))))
+        self.assertEquals(u'szlavista', unicode(GFactory.parseNP(u'szláv').appendSuffix(GFactory.parseSuffixum(u'ista'))))
+        self.assertEquals(u'privatizál', unicode(GFactory.parseNP(u'privát').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+
+        self.assertEquals(u'katonasága', unicode(GFactory.parseNP(u'katona').appendSuffix(GFactory.parseSuffixum(u'sÁg', NomenSuffixum)).appendSuffix(PossessiveSuffixum(1, 3))))
+
 
 if __name__ == '__main__':
     iSuffixumMorphology()
@@ -1362,4 +1471,8 @@ if __name__ == '__main__':
     SyntaxTree()
     GFactory()
 
-    print 'OK'
+    import sys
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+    unittest.main()

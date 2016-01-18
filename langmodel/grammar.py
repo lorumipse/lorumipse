@@ -361,9 +361,26 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
         return clone
 
     def appendSuffix(self, suffix) :
-        stem = self.cloneAs(Wordform)
-        stem.ortho += suffix.ortho
+        # @todo check input class
+        stem = self.cloneAs(self.__class__)
+        output_class = self.__class__
+        affix = copy.copy(suffix)
+        stem.onBeforeSuffixation(affix)
+        affix.onBeforeSuffixed(stem)
+        interfix_ortho = affix.getInterfix(stem)
+        stem.ortho += interfix_ortho + affix.ortho
+        affix.onAfterSuffixed(stem)
         return stem
+
+    def onBeforeSuffixation(self, suffix):
+        if self.isAlternating() and suffix.isAlternating():
+            self.ortho = self.lemma2
+        if self.isVTMR() and suffix.isVTMR():
+            self.ortho = Phonology.doMR(self.ortho)
+        if self.isBTMR() and suffix.isBTMR():
+            self.ortho = Phonology.doMR(self.ortho)
+        if self.isAMNYLeft() and suffix.isAMNYRight():
+            self.ortho = Phonology.doAMNY(self.ortho)
 
     # iWordformPhonology {{{
 
@@ -393,21 +410,9 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
             ('b' if self.isBTMR() else '-') + \
             ('@' if self.isAlternating() else '~')
 
-class Wordform1 (Wordform) : 
+class Wordform1 (Wordform) : pass
 
-    def appendSuffix(self, suffix) :
-        # @todo check input class
-        stem = self.cloneAs(Wordform)
-        output_class = Wordform
-        affix = copy.copy(suffix)
-        stem.onBeforeSuffixation(affix)
-        affix.onBeforeSuffixed(stem)
-        interfix_ortho = affix.getInterfix(stem)
-        stem.ortho += suffix.ortho
-        affix.onAfterSuffixed(stem)
-        return stem
 
-    
 import unittest
 
 class GrammarTest (unittest.TestCase) :
