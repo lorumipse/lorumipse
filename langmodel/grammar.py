@@ -330,12 +330,15 @@ class iWordformPhonology :
     def isLastVowel(self) : pass
     def isVTMR(self) : pass
     def isBTMR(self) : pass 
-    def isOpening(self) : pass 
+    def isOpening(self):
+        return self.is_opening if None != self.is_opening else Phonology.isOpening(self.lemma)
     def isAMNYLeft(self) : pass 
     def isAMNYRight(self) : pass 
     def isAlternating(self) : pass 
-    def needSuffixU(self) : pass 
-    def needSuffixI(self) : pass 
+    def needSuffixU(self):
+        return Phonology.needSuffixU(self.lemma)
+    def needSuffixI(self):
+        return self.need_suffix_I if None != self.need_suffix_I else Phonology.needSuffixI(self.lemma)
     def needSuffixPhonocode(self) : pass 
     def doAssimilate(self, char) : pass
 
@@ -349,7 +352,7 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
         self.is_opening = False
         self.is_amny = None
         self.is_alternating = False
-        self.needSuffixI = None
+        self.need_suffix_I = None
 
     def __repr__(self) :
         return self.ortho
@@ -359,6 +362,12 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
         for key in self.__dict__ :
             setattr(clone, key, self.__dict__[key])
         return clone
+
+    def needSuffixI(self):
+        if None != self.need_suffix_I:
+            return self.need_suffix_I
+        else:
+            return Phonology.needSuffixI(self.lemma)
 
     def appendSuffix(self, suffix) :
         # @todo check input class
@@ -394,7 +403,10 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
         return self.is_alternating
 
     def needSuffixPhonocode(self) :
-        return Phonology.needSuffixPhonocode(self.ortho)
+        return \
+            ('U' if self.needSuffixU() else '-') + \
+            ('I' if self.needSuffixI() else '-') + \
+            (',O' if self.isOpening() else ',-')
 
     def isVTMR(self) :
         return self.is_vtmr

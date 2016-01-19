@@ -50,14 +50,14 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
 
     def getInvalidSuffixRegexList(self):
         return [
-            '[bcdfghkmptvw],t',
-            '[bcdfghklmnpqrstvwyz],[dkmn]',
-            '[bcdfghklmnpqrstvwyz]{2,},[bcdfghklmnpqrstvwyz]',
-            '[lrsy],t.+', # @see barnulástok, hoteltek
+            r'[bcdfghkmptvw],t',
+            r'[bcdfghklmnpqrstvwyz],[dkmn]',
+            r'[bcdfghklmnpqrstvwyz]{2,},[bcdfghklmnpqrstvwyz]',
+            r'[lrsy],t.+', # @see barnulástok, hoteltek
         ]
 
     def isValidSuffixConcatenation(self, ortho_stem, ortho_suffix):
-        string = ortho_stem+","+ortho_suffix
+        string = ortho_stem+u","+ortho_suffix
         for regex in self.getInvalidSuffixRegexList():
             if re.search(regex, string):
                 return False
@@ -275,9 +275,8 @@ class VerbalSuffixum1(aVerbalSuffixum):
          return self.ortho
 
     def getInvalidSuffixRegexList(self):
-         return [
-             '/lt,n/',
-         ]
+         return ['lt,n',]
+
     def onAfterSuffixed(self, stem):
          super(VerbalSuffixum1, self).onAfterSuffixed(stem)
          if self.mood == 3:
@@ -362,10 +361,10 @@ class VerbalSuffixum2(aVerbalSuffixum):
 
      def getInvalidSuffixRegexList(self):
          return [
-             '/[dlstz]t,[nt]/',
-             '/t,tt/',
-             '/lt,sz/',
-             '/lsz,[nt]/'
+             r'[dlstz]t,[nt]',
+             r't,tt',
+             r'lt,sz',
+             r'lsz,[nt]'
          ]
 
      def getInterfix(self, stem):
@@ -1218,7 +1217,7 @@ class GFactory(object):
         u'kehely': u'kelyh',
         }
 
-    needSuffixI = {
+    need_suffix_I_Nomen_list = {
         u'híd': False,
         u'nyíl': False,
         u'oxigén': True,
@@ -1234,8 +1233,8 @@ class GFactory(object):
         obj.is_opening = string in GFactory.N_opening_list
         if string in GFactory.N_jaje:
             obj.is_jaje = GFactory.N_jaje[string]
-        if string in GFactory.needSuffixI:
-            obj.needSuffixI = GFactory.needSuffixI[string]
+        if string in GFactory.need_suffix_I_Nomen_list:
+            obj.need_suffix_I = GFactory.need_suffix_I_Nomen_list[string]
         obj.is_alternating = string in GFactory.N_alternating_list
         if obj.is_alternating:
             obj.lemma2 = GFactory.N_alternating_list[string]
@@ -1370,7 +1369,7 @@ class GFactory(object):
     # u'becsül': u'becsl',
     # u'őriz': u'őrz',
 
-    needSuffixI_verb_list = {
+    need_suffix_I_verb_list = {
         u'isz': False,
         }
 
@@ -1405,8 +1404,8 @@ class GFactory(object):
             obj.isSZDV = True
             obj.lemma2 = GFactory.SZDV_list[obj.lemma][0]
             obj.lemma3 = GFactory.SZDV_list[obj.lemma][1]
-        if string in GFactory.needSuffixI_verb_list:
-            obj.needSuffixI = GFactory.needSuffixI_verb_list[string]
+        if string in GFactory.need_suffix_I_verb_list:
+            obj.need_suffix_I = GFactory.need_suffix_I_verb_list[string]
         if string in GFactory.ikes:
             obj.ikes = GFactory.ikes[string]
         return obj
@@ -1513,9 +1512,19 @@ class Test (unittest.TestCase) :
         self.assertTrue(V.conjugate(1, 1, 1, -1, 0).matchCase('..[23]..|...9.'));
 
     def testInfinitiveConjugation(self):
-        self.checkInfinitiveConjugation(GFactory.parseV(u'olvas'), [u'olvasni', u'olvasnom', u'olvasnod', u'olvasnia', u'olvasnunk', u'olvasnotok', u'olvasniuk']);
+        self.checkInfinitiveConjugation(u'olvas', [u'olvasni', u'olvasnom', u'olvasnod', u'olvasnia', u'olvasnunk', u'olvasnotok', u'olvasniuk']);
+        self.checkInfinitiveConjugation(u'tesz', [u'tenni', u'tennem', u'tenned', u'tennie', u'tennünk', u'tennetek', u'tenniük'])
+        self.checkInfinitiveConjugation(u'hisz', [u'hinni', u'hinnem', u'hinned', u'hinnie', u'hinnünk', u'hinnetek', u'hinniük'])
+        self.checkInfinitiveConjugation(u'esz', [u'enni', u'ennem', u'enned', u'ennie', u'ennünk', u'ennetek', u'enniük'])
+        self.checkInfinitiveConjugation(u'isz', [u'inni', u'innom', u'innod', u'innia', u'innunk', u'innotok', u'inniuk'])
+        self.checkInfinitiveConjugation(u'űz', [u'űzni', u'űznöm', u'űznöd', u'űznie', u'űznünk', u'űznötök', u'űzniük'])
+        self.checkInfinitiveConjugation(u'költ', [u'költeni', u'költenem', u'költened', u'költenie', u'költenünk', u'költenetek', u'költeniük'])
+        self.checkInfinitiveConjugation(u'lő', [u'lőni', u'lőnöm', u'lőnöd', u'lőnie', u'lőnünk', u'lőnötök', u'lőniük'])
+        self.checkInfinitiveConjugation(u'ró', [u'róni', u'rónom', u'rónod', u'rónia', u'rónunk', u'rónotok', u'róniuk'])
+        self.checkInfinitiveConjugation(u'alsz', [u'aludni', u'aludnom', u'aludnod', u'aludnia', u'aludnunk', u'aludnotok', u'aludniuk'])
 
-    def checkInfinitiveConjugation(self, V, verbforms):
+    def checkInfinitiveConjugation(self, lemma, verbforms):
+        V = GFactory.parseV(lemma)
         conjugations = [[0, 0], [1, 1], [1, 2], [1, 3], [3, 1], [3, 2], [3, 3]]
         i = 0
         for conjugation in conjugations:
