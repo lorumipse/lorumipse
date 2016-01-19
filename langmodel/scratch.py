@@ -1520,9 +1520,23 @@ class Test (unittest.TestCase) :
         self.checkInfinitiveConjugation(u'ró', [u'róni', u'rónom', u'rónod', u'rónia', u'rónunk', u'rónotok', u'róniuk'])
         self.checkInfinitiveConjugation(u'alsz', [u'aludni', u'aludnom', u'aludnod', u'aludnia', u'aludnunk', u'aludnotok', u'aludniuk'])
 
+    def testVerbConjugation(self):
+        self.checkConjugation(u'olvas', [
+            u'olvasok', u'olvasol', u'olvas', u'olvasunk', u'olvastok', u'olvasnak',
+            u'olvasom', u'olvasod', u'olvassa', u'olvassuk', u'olvassátok', u'olvassák',
+            u'', u'olvastál', u'olvasott', u'olvastunk', u'olvastatok', u'olvastak', # todo u'olvastam'
+            u'', u'olvastad', u'olvasta', u'olvastuk', u'olvastátok', u'olvasták', # todo u'olvastam'
+            u'olvasnék', u'olvasnál', u'olvasna', u'olvasnánk', u'olvasnátok', u'olvasnának',
+            u'olvasnám', u'olvasnád', u'olvasná', u'olvasnánk', u'olvasnátok', u'olvasnák',
+            u'olvassak', u'olvassál', u'olvasson', u'olvassunk', u'olvassatok', u'olvassanak',  # todo olvass
+            u'olvassam', u'olvassad', u'olvassa', u'olvassuk', u'olvassátok', u'olvassák', # todo olvasd
+            u'olvaslak', u'olvastalak', u'olvasnálak', u'olvassalak',
+            ]
+        )
+
     def checkInfinitiveConjugation(self, lemma, verbforms):
-        V = GFactory.parseV(lemma)
         conjugations = [[0, 0], [1, 1], [1, 2], [1, 3], [3, 1], [3, 2], [3, 3]]
+        V = GFactory.parseV(lemma)
         i = 0
         for conjugation in conjugations:
             if not verbforms[i]:
@@ -1531,6 +1545,81 @@ class Test (unittest.TestCase) :
             actual = unicode(V.makeInfinitive(* conjugation))
             self.assertEquals(expected, actual)
             i += 1
+
+
+    def checkConjugation(self, lemma, verbforms):
+        conjugations = [
+            [1, 1, 1, 0, 0],
+            [1, 2, 1, 0, 0],
+            [1, 3, 1, 0, 0],
+            [3, 1, 1, 0, 0],
+            [3, 2, 1, 0, 0],
+            [3, 3, 1, 0, 0],
+
+            [1, 1, 1, 0, 3],
+            [1, 2, 1, 0, 3],
+            [1, 3, 1, 0, 3],
+            [3, 1, 1, 0, 3],
+            [3, 2, 1, 0, 3],
+            [3, 3, 1, 0, 3],
+
+            [1, 1, 1, -1, 0],
+            [1, 2, 1, -1, 0],
+            [1, 3, 1, -1, 0],
+            [3, 1, 1, -1, 0],
+            [3, 2, 1, -1, 0],
+            [3, 3, 1, -1, 0],
+
+            [1, 1, 1, -1, 3],
+            [1, 2, 1, -1, 3],
+            [1, 3, 1, -1, 3],
+            [3, 1, 1, -1, 3],
+            [3, 2, 1, -1, 3],
+            [3, 3, 1, -1, 3],
+
+            [1, 1, 2, 0, 0],
+            [1, 2, 2, 0, 0],
+            [1, 3, 2, 0, 0],
+            [3, 1, 2, 0, 0],
+            [3, 2, 2, 0, 0],
+            [3, 3, 2, 0, 0],
+
+            [1, 1, 2, 0, 3],
+            [1, 2, 2, 0, 3],
+            [1, 3, 2, 0, 3],
+            [3, 1, 2, 0, 3],
+            [3, 2, 2, 0, 3],
+            [3, 3, 2, 0, 3],
+
+            [1, 1, 3, 0, 0],
+            [1, 2, 3, 0, 0],
+            [1, 3, 3, 0, 0],
+            [3, 1, 3, 0, 0],
+            [3, 2, 3, 0, 0],
+            [3, 3, 3, 0, 0],
+
+            [1, 1, 3, 0, 3],
+            [1, 2, 3, 0, 3],
+            [1, 3, 3, 0, 3],
+            [3, 1, 3, 0, 3],
+            [3, 2, 3, 0, 3],
+            [3, 3, 3, 0, 3],
+            [1, 1, 1, 0, 2],
+            [1, 1, 1, -1, 2],
+            [1, 1, 2, 0, 2],
+            [1, 1, 3, 0, 2],
+        ]
+
+        V = GFactory.parseV(lemma)
+        i = 0
+        for conjugation in conjugations:
+            if not verbforms[i]:
+                continue;
+            expected = verbforms[i]
+            actual = unicode(V.conjugate(* conjugation))
+            self.assertEquals(expected, actual)
+            i += 1
+
 
 if __name__ == '__main__':
     iSuffixumMorphology()

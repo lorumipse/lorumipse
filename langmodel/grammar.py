@@ -422,7 +422,7 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
             ('@' if self.isAlternating() else '~')
 
     def doAssimilate(self, char):
-        if Phonology.getLastConsonant(self.ortho) == char:
+        if Phonology.getLastConsonant(self.ortho) == u's':
             self.ortho = Phonology.doDoubleLastConsonant(self.ortho)
         else:
             self.ortho += char
