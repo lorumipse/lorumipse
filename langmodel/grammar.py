@@ -421,6 +421,12 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
             ('b' if self.isBTMR() else '-') + \
             ('@' if self.isAlternating() else '~')
 
+    def doAssimilate(self, char):
+        if Phonology.getLastConsonant(self.ortho) == char:
+            self.ortho = Phonology.doDoubleLastConsonant(self.ortho)
+        else:
+            self.ortho += char
+
 class Wordform1 (Wordform) : pass
 
 
@@ -595,19 +601,3 @@ class GrammarTest (unittest.TestCase) :
         self.assertEqual(u'zs', Phonology.getLastConsonant(u'bézs'))
         self.assertEqual(u'zzs', Phonology.getLastConsonant(u'xezzs'))
 
-    def testWordform(self) :
-        w = Wordform(u'ember')
-        self.assertEqual(u'ember', str(w))
-        x = w.cloneAs(Wordform)
-        self.assertEqual(u'ember', str(x))
-
-    def testPhonology1(self) :
-        w = Wordform(u'ember')
-        s = Wordform(u'ke')
-        self.assertEqual(u'emberke', str(w.appendSuffix(s)))
-
-
-    def testVerb(self):
-        v = Verbum(u"kapál")
-        wordform = v.conjugate([1, 3, 1, 0, 0])
-        self.assertEqual(u"kapál", wordform)
