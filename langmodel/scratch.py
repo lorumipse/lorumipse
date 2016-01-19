@@ -83,12 +83,11 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
         return interfix
 
     def onAssimilated(self, char, ortho):
-        ortho = ortho[1:]
-        return ortho
+        return ortho[1:]
 
     def onBeforeSuffixed(self, stem):
         ortho = self.getNonOptionalSuffix()
-        if Phonology.canAssimilate(stem.ortho, ortho, char = 'v'):
+        if Phonology.canAssimilate(stem.ortho, ortho, char = u'v'):
             stem.doAssimilate(char)
             ortho = self.onAssimilated(char, ortho)
         ortho = Phonology.interpolateVowels(stem.needSuffixPhonocode(), ortho)
@@ -221,17 +220,17 @@ class aVerbalSuffixum(Suffixum, iVerbal, iNumPers):
 class VerbalSuffixum1(aVerbalSuffixum):
 
     def __init__(self, numero, person, mood=1, tense=0, definite=0):
-         self.lemma = ''
+         self.lemma = u''
          self.ortho = self.lemma
          super(VerbalSuffixum1, self).__init__(numero, person, mood, tense, definite)
          if self.tense == -1: # múlt idő jele
-             self.lemma = 't'
+             self.lemma = u't'
              self.ortho = self.lemma
          if self.mood == 2 &self.tense == 0: # feltételes mód jele
-             self.lemma = 'n'
+             self.lemma = u'n'
              self.ortho = self.lemma
          if self.mood == 3: # felszólító mód jele
-             self.lemma = 'j'
+             self.lemma = u'j'
              self.ortho = self.lemma
 
 
@@ -240,42 +239,42 @@ class VerbalSuffixum1(aVerbalSuffixum):
              if stem.needVtt(self): # Vtt
                  self.ortho =  Phonology.interpolateVowels(stem.needSuffixPhonocode(), 'Vtt')
              elif stem.needTT(): # tt
-                 self.ortho = 'tt'
+                 self.ortho = u'tt'
              else: # t
-                 self.ortho = 't'
+                 self.ortho = u't'
 
          if self.mood == 2 and self.tense == 0: # feltételes mód jele
              if stem.needNN():
-                 self.ortho = 'nn'
+                 self.ortho = u'nn'
              else:
-                 self.ortho = 'n'
+                 self.ortho = u'n'
 
          if self.mood == 3: # felszólító mód jele
              last = Phonology.getLastConsonant(stem.ortho)
              if stem.needJggy():
-                 self.ortho = 'ggy'
+                 self.ortho = u'ggy'
              elif stem.needJgy():
-                 self.ortho = 'gy'
+                 self.ortho = u'gy'
              elif stem.needJss():
-                 self.ortho = 'ss'
+                 self.ortho = u'ss'
              elif stem.needJs():
-                 self.ortho = 's'
+                 self.ortho = u's'
              elif stem.needJAssim():
-                 ortho = char = 'j'
+                 ortho = char = u'j'
                  if Phonology.canAssimilate(stem.ortho, ortho, char):
                      stem.doAssimilate(char)
                      ortho = self.onAssimilated(char, ortho)
                  self.ortho = ortho
              else:
-                 self.ortho = 'j'
+                 self.ortho = u'j'
 
     def getInterfix(self, stem):
          if not self.isValidSuffixConcatenation(stem.ortho, self.ortho):
-             return Phonology.interpolateVowels(stem.needSuffixPhonocode(), 'A')
+             return Phonology.interpolateVowels(stem.needSuffixPhonocode(), u'A')
          return self.ortho
 
     def getInvalidSuffixRegexList(self):
-         return ['lt,n',]
+         return [r'lt,n',]
 
     def onAfterSuffixed(self, stem):
          super(VerbalSuffixum1, self).onAfterSuffixed(stem)
@@ -297,58 +296,58 @@ class VerbalSuffixum2(aVerbalSuffixum):
          1: {
              0: {
                  0: {
-                     1: {1: 'Vk', 2: '_Asz|Vl', 3: ''},
-                     3: {1: 'Unk', 2: '_VtVk', 3: '_AnAk'}
+                     1: {1: u'Vk', 2: u'_Asz|Vl', 3: u''},
+                     3: {1: u'Unk', 2: u'_VtVk', 3: u'_AnAk'}
                  },
                  2: {
-                     1: {1: 'lAk'},
+                     1: {1: u'lAk'},
                      },
                  3: {
-                     1: {1: 'Vm', 2: 'Vd', 3: 'ja|i'},
-                     3: {1: 'jUk', 2: 'jÁtVk|itek', 3: 'jÁk|ik'}
+                     1: {1: u'Vm', 2: u'Vd', 3: u'ja|i'},
+                     3: {1: u'jUk', 2: u'jÁtVk|itek', 3: u'jÁk|ik'}
                  },
              },
              -1: {
                  0: {
-                     1: {1: 'Am', 2: 'Ál', 3: ''},
-                     3: {1: 'Unk', 2: '_AtWk', 3: 'Ak'}
+                     1: {1: u'Am', 2: u'Ál', 3: u''},
+                     3: {1: u'Unk', 2: u'_AtWk', 3: u'Ak'}
                  },
                  2: {
-                     1: {1: 'AlAk'}
+                     1: {1: u'AlAk'}
                  },
                  3: {
-                     1: {1: 'Am', 2: 'Ad', 3: 'A'},
-                     3: {1: 'Uk', 2: 'ÁtWk', 3: 'Ák'}
+                     1: {1: u'Am', 2: u'Ad', 3: u'A'},
+                     3: {1: u'Uk', 2: u'ÁtWk', 3: u'Ák'}
                  },
              },
          },
          2: {
              0: {
                  0: {
-                     1: {1: 'ék', 2: 'Ál', 3: 'A'},
-                     3: {1: 'Ánk', 2: 'ÁtWk', 3: 'ÁnAk'}
+                     1: {1: u'ék', 2: u'Ál', 3: u'A'},
+                     3: {1: u'Ánk', 2: u'ÁtWk', 3: u'ÁnAk'}
                  },
                  2: {
-                     1: {1: 'ÁlAk'},
+                     1: {1: u'ÁlAk'},
                      },
                  3: {
-                     1: {1: 'Ám', 2: 'Ád', 3: 'Á'},
-                     3: {1: 'Ánk', 2: 'ÁtWk', 3: 'Ák'}
+                     1: {1: u'Ám', 2: u'Ád', 3: u'Á'},
+                     3: {1: u'Ánk', 2: u'ÁtWk', 3: u'Ák'}
                  },
              },
          },
          3: {
              0: {
                  0: {
-                     1: {1: 'Ak', 2: 'Ál', 3: 'On'},
-                     3: {1: 'Unk', 2: 'AtWk', 3: 'AnAk'}
+                     1: {1: u'Ak', 2: u'Ál', 3: u'On'},
+                     3: {1: u'Unk', 2: u'AtWk', 3: u'AnAk'}
                  },
                  2: {
-                     1: {1: 'AlAk'},
+                     1: {1: u'AlAk'},
                      },
                  3: {
-                     1: {1: 'Am', 2: 'Ad', 3: 'A'},
-                     3: {1: 'Uk', 2: 'ÁtWk', 3: 'Ák'}
+                     1: {1: u'Am', 2: u'Ad', 3: u'A'},
+                     3: {1: u'Uk', 2: u'ÁtWk', 3: u'Ák'}
                  }
              }
          }
@@ -368,7 +367,7 @@ class VerbalSuffixum2(aVerbalSuffixum):
          ]
 
      def getInterfix(self, stem):
-         interfix = ''
+         interfix = u''
          if self.hasOptionalInterfix() and not self.isValidSuffixConcatenation(stem.ortho, self.ortho):
              interfix += self.getOptionalInterfix()
              interfix = Phonology.interpolateVowels(stem.needSuffixPhonocode(), interfix)
@@ -390,14 +389,14 @@ class VerbalSuffixum2(aVerbalSuffixum):
     
          ortho = self.getNonOptionalSuffix()
          if not stem.isLastT():
-             char = 'j'
+             char = u'j'
              if Phonology.canAssimilate(stem.ortho, ortho, char):
                  stem.doAssimilate(char)
                  ortho = self.onAssimilated(char, ortho)
          ortho = Phonology.interpolateVowels(stem.needSuffixPhonocode(), ortho)
     
          if stem.ikes and self.matchCase('13100'):
-             ortho = 'ik'
+             ortho = u'ik'
     
          self.ortho = ortho
 
@@ -408,9 +407,9 @@ class InfinitiveSuffixum(aVerbalSuffixum):
          1: {
              0: {
                  0: {
-                     0: {0: 'ni'},
-                     1: {1: 'nVm', 2: 'nVd', 3: 'niA'},
-                     3: {1: 'nUnk', 2: 'nVtVk', 3: 'niUk'}
+                     0: {0: u'ni'},
+                     1: {1: u'nVm', 2: u'nVd', 3: u'niA'},
+                     3: {1: u'nUnk', 2: u'nVtVk', 3: u'niUk'}
                  }
              }
          }
@@ -423,16 +422,14 @@ class InfinitiveSuffixum(aVerbalSuffixum):
      def onBeforeSuffixed(self, stem):
          lemma = self.lemma
          if stem.needInfinitivusNN():
-             lemma = 'n'+lemma
+             lemma = u'n'+lemma
          if not self.isValidSuffixConcatenation(stem.ortho, lemma):
-             lemma = 'A'+lemma
+             lemma = u'A'+lemma
              stem.is_opening = True
          self.ortho = Phonology.interpolateVowels(stem.needSuffixPhonocode(), lemma)
     
      def getInvalidSuffixRegexList(self):
-         return [
-             '/lt,n/'
-         ]
+         return [r'lt,n',]
 
 class Verbum(Wordform, iVerbal):
      mood = None
@@ -495,19 +492,19 @@ class Verbum(Wordform, iVerbal):
              self.ortho = self.lemma2
     
          # @fixme
-         if self.lemma == 'alsz' and isinstance(suffix, VerbalSuffixum2):
+         if self.lemma == u'alsz' and isinstance(suffix, VerbalSuffixum2):
              if suffix.matchCase('(13|3.)103'):
-                 self.ortho = 'alusz'
+                 self.ortho = u'alusz'
     
          # @fixme
-         if self.lemma == 'isz' and isinstance(suffix, VerbalSuffixum1):
+         if self.lemma == u'isz' and isinstance(suffix, VerbalSuffixum1):
              if suffix.matchCase('13190'):
-                 self.ortho = 'iv'
+                 self.ortho = u'iv'
 
          # @fixme
-         if self.lemma == 'esz' and isinstance(suffix, VerbalSuffixum1):
+         if self.lemma == u'esz' and isinstance(suffix, VerbalSuffixum1):
              if suffix.matchCase('13190'):
-                 self.ortho = 'ev'
+                 self.ortho = u'ev'
 
 
      def isLastAffrSyb(self):
@@ -516,7 +513,7 @@ class Verbum(Wordform, iVerbal):
 
      def isLastT(self):
          char = Phonology.getLastConsonant(self.ortho)
-         return (char == 't' or char == 'tt')
+         return (char == u't' or char == u'tt')
 
 
      def needNN(self):
@@ -538,10 +535,10 @@ class Verbum(Wordform, iVerbal):
              and self.isLastT()
 
      def needJgy(self):
-         return self.isSZV and not (self.lemma == 'hisz')
+         return self.isSZV and not (self.lemma == u'hisz')
 
      def needJggy(self):
-         return self.lemma == 'hisz'
+         return self.lemma == u'hisz'
 
      # zörej+j: zörejhez hasonul
      # ha zörej+t, akkor hasonul,
@@ -563,18 +560,18 @@ class Verbum(Wordform, iVerbal):
              return True
 
          cons = Phonology.getLastConsonant(self.lemma)
-         arr = ['m', 'v', 'r', 's', 'ss', 't', 'tt', 'z', 'zz', 'zs', 'zzs']
+         arr = [u'm', u'v', u'r', u's', u'ss', u't', u'tt', u'z', u'zz', u'zs', u'zzs']
          if cons in arr:
              if suffix.matchCase('13..0'):
                  return True
              else:
                  return False
 
-         if self.lemma == 'isz':
+         if self.lemma == u'isz':
              if suffix.matchCase('13190'):
                  return True
 
-         if self.lemma == 'esz':
+         if self.lemma == u'esz':
              if suffix.matchCase('13190'):
                  return True
 
@@ -761,58 +758,58 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          return clone
 
      def makeAccusativus(self):
-         clone = self.makeNominativus().appendSuffix(GFactory.parseSuffixum('_Vt'))
+         clone = self.makeNominativus().appendSuffix(GFactory.parseSuffixum(u'_Vt'))
          clone.case = 'Accusativus'
          return clone
-         return self._makeCaseFromNominativusWithSuffix('Accusativus', GFactory.parseSuffixum('_Vt'))
+         return self._makeCaseFromNominativusWithSuffix('Accusativus', GFactory.parseSuffixum(u'_Vt'))
 
      def makeCausalisFinalis(self):
-         return self._makeCaseFromNominativusWithSuffix('CausalisFinalis', GFactory.parseSuffixum('ért'))
+         return self._makeCaseFromNominativusWithSuffix('CausalisFinalis', GFactory.parseSuffixum(u'ért'))
 
      def makeDativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Dativus', GFactory.parseSuffixum('nAk'))
+         return self._makeCaseFromNominativusWithSuffix('Dativus', GFactory.parseSuffixum(u'nAk'))
 
      def makeInstrumentalis(self):
-         return self._makeCaseFromNominativusWithSuffix('Instrumentalis', GFactory.parseSuffixum('vAl'))
+         return self._makeCaseFromNominativusWithSuffix('Instrumentalis', GFactory.parseSuffixum(u'vAl'))
 
      def makeTranslativusFactivus(self):
-         return self._makeCaseFromNominativusWithSuffix('TranslativusFactivus', GFactory.parseSuffixum('vÁ'))
+         return self._makeCaseFromNominativusWithSuffix('TranslativusFactivus', GFactory.parseSuffixum(u'vÁ'))
 
      def makeFormativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Formativus', GFactory.parseSuffixum('ként'))
+         return self._makeCaseFromNominativusWithSuffix('Formativus', GFactory.parseSuffixum(u'ként'))
 
      def makeEssivusFormalis(self):
-         return self._makeCaseFromNominativusWithSuffix('EssivusFormalis', GFactory.parseSuffixum('Ul'))
+         return self._makeCaseFromNominativusWithSuffix('EssivusFormalis', GFactory.parseSuffixum(u'Ul'))
 
      def makeIllativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Illativus', GFactory.parseSuffixum('bA'))
+         return self._makeCaseFromNominativusWithSuffix('Illativus', GFactory.parseSuffixum(u'bA'))
 
      def makeInessivus(self):
-         return self._makeCaseFromNominativusWithSuffix('Inessivus', GFactory.parseSuffixum('bAn'))
+         return self._makeCaseFromNominativusWithSuffix('Inessivus', GFactory.parseSuffixum(u'bAn'))
 
      def makeElativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Elativus', GFactory.parseSuffixum('bÓl'))
+         return self._makeCaseFromNominativusWithSuffix('Elativus', GFactory.parseSuffixum(u'bÓl'))
 
      def makeSublativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Sublativus', GFactory.parseSuffixum('rA'))
+         return self._makeCaseFromNominativusWithSuffix('Sublativus', GFactory.parseSuffixum(u'rA'))
 
      def makeSuperessivus(self):
-         return self._makeCaseFromNominativusWithSuffix('Superessivus', GFactory.parseSuffixum('_On'))
+         return self._makeCaseFromNominativusWithSuffix('Superessivus', GFactory.parseSuffixum(u'_On'))
 
      def makeDelativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Delativus', GFactory.parseSuffixum('rÓl'))
+         return self._makeCaseFromNominativusWithSuffix('Delativus', GFactory.parseSuffixum(u'rÓl'))
 
      def makeAllativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Allativus', GFactory.parseSuffixum('hOz'))
+         return self._makeCaseFromNominativusWithSuffix('Allativus', GFactory.parseSuffixum(u'hOz'))
 
      def makeAdessivus(self):
-         return self._makeCaseFromNominativusWithSuffix('Adessivus', GFactory.parseSuffixum('nÁl'))
+         return self._makeCaseFromNominativusWithSuffix('Adessivus', GFactory.parseSuffixum(u'nÁl'))
 
      def makeAblativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Ablativus', GFactory.parseSuffixum('tÓl'))
+         return self._makeCaseFromNominativusWithSuffix('Ablativus', GFactory.parseSuffixum(u'tÓl'))
 
      def makeTerminativus(self):
-         return self._makeCaseFromNominativusWithSuffix('Terminativus', GFactory.parseSuffixum('ig'))
+         return self._makeCaseFromNominativusWithSuffix('Terminativus', GFactory.parseSuffixum(u'ig'))
 
      # helpers {{{
 
@@ -838,24 +835,24 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          return self.makeDativus()
 
      def makeCausalis(self):
-         return self._makeCaseWithNU('Causalis', GFactory.parseNP('miatt'))
+         return self._makeCaseWithNU('Causalis', GFactory.parseNP(u'miatt'))
 
      # @skipdef makeExessivus(self)
 
      def makePerlativus(self):
-         return self._makeCaseWithHRHSZ('Perlativus', GFactory.parseNP('keresztül'), GFactory.parseSuffixum('On'))
+         return self._makeCaseWithHRHSZ('Perlativus', GFactory.parseNP(u'keresztül'), GFactory.parseSuffixum(u'On'))
 
      def makeProlativus(self):
-         return self._makeCaseWithHRHSZ('Perlativus', GFactory.parseNP('át'), GFactory.parseSuffixum('On'))
+         return self._makeCaseWithHRHSZ('Perlativus', GFactory.parseNP(u'át'), GFactory.parseSuffixum(u'On'))
 
      def makeVialis(self):
          return self.makeProlativus()
 
      def makeSubessivus(self):
-         return self._makeCaseWithNU('Perlativus', GFactory.parseNP('alatt'))
+         return self._makeCaseWithNU('Perlativus', GFactory.parseNP(u'alatt'))
 
      def makeProsecutivus(self):
-         return self._makeCaseWithHNHSZ('Prosecutivus', GFactory.parseNP('mentén'))
+         return self._makeCaseWithHNHSZ('Prosecutivus', GFactory.parseNP(u'mentén'))
 
      #def makeApudessivus()
      #def makeInitiativus()
@@ -863,7 +860,7 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
 
      #def makeAntessivus()
      def makeTemporalis(self):
-         return self._makeCaseFromNominativusWithSuffix('Temporalis', GFactory.parseSuffixum('kor'))
+         return self._makeCaseFromNominativusWithSuffix('Temporalis', GFactory.parseSuffixum(u'kor'))
 
 
 class AdjSuffixum(Suffixum):
@@ -877,7 +874,7 @@ class Adj(Nomen):
     def makeComparativus(self):
          if not (self.case == "Nominativus"):
              raise Exception('Adj Comparativus needs Nominativus')
-         bb = GFactory.parseSuffixum('_Vbb').cloneAs('AdjSuffixum')
+         bb = GFactory.parseSuffixum(u'_Vbb').cloneAs('AdjSuffixum')
          A = self.appendSuffix(bb)
          A.case = 'Comparativus'
          return A
@@ -887,7 +884,7 @@ class Adj(Nomen):
              raise Exception('Adj Superlativus needs Nominativus')
          A = self.makeComparativus()
          # @todo prependPrefix()
-         A.ortho = 'leg'+A.ortho
+         A.ortho = u'leg'+A.ortho
          A.case = 'Superlativus'
          return A
 
@@ -895,7 +892,7 @@ class Adj(Nomen):
          if not (self.case == "Nominativus"):
              raise Exception('Adj Superlativus2 needs Nominativus')
          A = self.makeSuperlativus()
-         A.ortho = 'leges'+A.ortho
+         A.ortho = u'leges'+A.ortho
          A.case = 'Superlativus2'
          return A
 
@@ -903,7 +900,7 @@ class Adj(Nomen):
     def kiemelo(self):
          if not (self.case == "Comparativus" or self.case == "Superlativus" or self.case == "Superlativus2"):
              raise Exception('Adj "kiemelo" needs Comparativus or Superlativus or Superlativus2')
-         bb = GFactory.parseSuffixum('ik').cloneAs('AdjSuffixum')
+         bb = GFactory.parseSuffixum(u'ik').cloneAs('AdjSuffixum')
          A = self.appendSuffix(bb)
          A.case = '+'
          return A
@@ -1504,7 +1501,7 @@ class Test (unittest.TestCase) :
         self.checkPossessor(u'Vargáé', u'Varga', 1)
 
     def testiVerbal(self):
-        V = GFactory.parseV('olvas');
+        V = GFactory.parseV(u'olvas');
         self.assertTrue(V.matchCase('13100'));
         self.assertTrue(V.conjugate(1, 1, 1, 0, 0).matchCase('11100'));
         self.assertTrue(V.conjugate(1, 2, 3, 0, 3).matchCase('.23.[23]'));
@@ -1550,20 +1547,20 @@ if __name__ == '__main__':
     iVirtualNominalCases()
     iVirtualTemporalCases()
     iPossessable()
-    Nomen('ember', 'ember')
+    Nomen(u'ember', u'ember')
     AdjSuffixum()
-    Adj('emberes')
+    Adj(u'emberes')
     iArgumented()
-    HeadedExpression('volna', '<ige>')
-    MorphoWord('volna', '<ige>')
-    ADVP_NU('<head>', '<arg>')
-    ADVP_HRHSZ('<head>', '<arg>', '<suffix>')
-    ADVP_HNHSZ('<head>', '<arg>')
+    HeadedExpression(u'volna', u'<ige>')
+    MorphoWord(u'volna', u'<ige>')
+    ADVP_NU(u'<head>', u'<arg>')
+    ADVP_HRHSZ(u'<head>', u'<arg>', u'<suffix>')
+    ADVP_HNHSZ(u'<head>', u'<arg>')
     SyntaxAction()
     SyntaxActionMakeCase('Nominativus')
     SyntaxActionVerbDefault(Caseframe('<desc>'))
-    SyntaxActionMakeNU('mellett')
-    SyntaxActionMakeArg('<host>')
+    SyntaxActionMakeNU(u'mellett')
+    SyntaxActionMakeArg(u'<host>')
     Caseframe('<desc>')
     SyntaxTree()
     GFactory()

@@ -84,7 +84,7 @@ class Phonology :
 
     @staticmethod
     def tr(ortho, map) :
-        str = ''
+        str = u''
         for chr in ortho :
             if chr in map :
                 str += map[chr]
@@ -204,11 +204,10 @@ class Phonology :
 
     @staticmethod
     def getLastConsonant(ortho) :
-        regex = re.compile(Phonology.consonant_regex)
+        regex = re.compile(Phonology.consonant_regex+'$')
         match = regex.search(ortho)
-        if match :
+        if match:
             return match.group(1)
-        return None
 
     double_consonants = {
         'ddzs' : 'ddzs',
