@@ -714,10 +714,7 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          return False
 
      def makePlural(self):
-         #clone = self.makeNominativus()
-         clone = Nomen(self.lemma, self.ortho)
-         if self.isPlural():
-             return clone
+         clone = self.cloneAs(Nomen)
          clone.numero = 3
          return clone.appendSuffix(GFactory.parseSuffixum('_Vk'))
 
@@ -751,10 +748,8 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
              raise Exception("No such case: case")
 
      def makeNominativus(self):
-         clone = Nomen(self.lemma, self.ortho)
+         clone = self.cloneAs(Nomen)
          clone.case = 'Nominativus'
-         if self.isPlural():
-             clone = clone.makePlural()
          return clone
 
      def makeAccusativus(self):
