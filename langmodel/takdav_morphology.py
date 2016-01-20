@@ -6,7 +6,10 @@ import re
 def affix(stem, ana):
     if ana.startswith('NOUN'):
         w = GFactory.parseNP(stem)
+
         if 'NOUN<PLUR>' in ana: w = w.makePlural()
+        if 'NOUN<PLUR<FAM>>' in ana: w = w.makePlural(familiar=True)
+
         if '<CAS<ACC>>' in ana: w = w.makeAccusativus()
         if '<CAS<DAT>>' in ana: w = w.makeDativus()
         if '<CAS<DEL>>' in ana: w = w.makeDelativus()
@@ -107,10 +110,10 @@ class TestMorphology(unittest.TestCase):
         # fiukéi fiú/NOUN<POSS<PLUR>><ANP<PLUR>>
         # fiaikéi fiú/NOUN<PLUR><POSS<PLUR>><ANP<PLUR>>
         # fiaitokéinak fiú/NOUN<PLUR><POSS<PLUR><2>><ANP<PLUR>><CAS<DAT>>
-        # fiúék fiú/NOUN<PLUR<FAM>>
         # fiáék fiú/NOUN<PLUR<FAM>><POSS>
         # fiúéké fiú/NOUN<PLUR<FAM>><ANP>
         # fiáéké fiú/NOUN<PLUR<FAM>><POSS><ANP>
+        self.assertEqual(u'fiúék', affix(u'fiú', 'NOUN<PLUR<FAM>>'))
 
         # kiváncsijaitokét kivácsi/ADJ<PLUR><POSS<PLUR><2>><ANP><CAS<ACC>>
         # kétezreinkével kétezer/NUM<PLUR><POSS<PLUR><1>><ANP><CAS<INS>>

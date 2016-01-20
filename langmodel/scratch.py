@@ -713,10 +713,10 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
      def isAMNYRight(self):
          return False
 
-     def makePlural(self):
+     def makePlural(self, familiar=False):
          clone = self.cloneAs(Nomen)
          clone.numero = 3
-         return clone.appendSuffix(GFactory.parseSuffixum('_Vk'))
+         return clone.appendSuffix(GFactory.parseSuffixum('_Vk' if not familiar else u'ék'))
 
      def isSingular(self):
          return (self.numero == 1)
