@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from scratch import GFactory
+from scratch import GFactory, PossessiveSuffixum, PossessorSuffixum
 import re
 
 def affix(stem, ana):
@@ -9,6 +9,10 @@ def affix(stem, ana):
 
         if 'NOUN<PLUR>' in ana: w = w.makePlural()
         if 'NOUN<PLUR<FAM>>' in ana: w = w.makePlural(familiar=True)
+        if '<POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3))
+        if '<POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3))
+        if '<ANP>' in ana: w = w.appendSuffix(PossessorSuffixum(1))
+        if '<ANP<PLUR>>' in ana: w = w.appendSuffix(PossessorSuffixum(3))
 
         if '<CAS<ACC>>' in ana: w = w.makeAccusativus()
         if '<CAS<DAT>>' in ana: w = w.makeDativus()
@@ -102,18 +106,26 @@ class TestMorphology(unittest.TestCase):
         self.assertEqual(u'fiúvá', affix(u'fiú', 'NOUN<CAS<TRA>>')) # translativus-factivus
         self.assertEqual(u'húsvétkor', affix(u'húsvét', 'NOUN<CAS<TEM>>')) # temporalis
 
-        # fiúké fiú/NOUN<PLUR><ANP>
-        # fiúéi fiú/NOUN<ANP<PLUR>>
-        # fiúkéi fiú/NOUN<PLUR><ANP<PLUR>>
-        # fiáéi fiú/NOUN<POSS><ANP<PLUR>>
-        # fiaiéi fiú/NOUN<PLUR><POSS><ANP<PLUR>>
-        # fiukéi fiú/NOUN<POSS<PLUR>><ANP<PLUR>>
-        # fiaikéi fiú/NOUN<PLUR><POSS<PLUR>><ANP<PLUR>>
-        # fiaitokéinak fiú/NOUN<PLUR><POSS<PLUR><2>><ANP<PLUR>><CAS<DAT>>
-        # fiáék fiú/NOUN<PLUR<FAM>><POSS>
-        # fiúéké fiú/NOUN<PLUR<FAM>><ANP>
-        # fiáéké fiú/NOUN<PLUR<FAM>><POSS><ANP>
+        self.assertEqual(u'fiúé', affix(u'fiú', 'NOUN<ANP>'))
+        self.assertEqual(u'fiúké', affix(u'fiú', 'NOUN<PLUR><ANP>'))
+        self.assertEqual(u'fiúéi', affix(u'fiú', 'NOUN<ANP<PLUR>>'))
+        self.assertEqual(u'fiúkéi', affix(u'fiú', 'NOUN<PLUR><ANP<PLUR>>'))
+        self.assertEqual(u'házakéi', affix(u'ház', 'NOUN<PLUR><ANP<PLUR>>'))
+        #self.assertEqual(u'fiáéi', affix(u'fiú', 'NOUN<POSS><ANP<PLUR>>'))
+        self.assertEqual(u'házáéi', affix(u'ház', 'NOUN<POSS><ANP<PLUR>>'))
+        self.assertEqual(u'háza', affix(u'ház', 'NOUN<POSS>'))
+        self.assertEqual(u'házuk', affix(u'ház', 'NOUN<POSS<PLUR>>'))
+        #self.assertEqual(u'fiaiéi', affix(u'fiú', 'NOUN<PLUR><POSS><ANP<PLUR>>'))
+        #self.assertEqual(u'házaiéi', affix(u'ház', 'NOUN<PLUR><POSS><ANP<PLUR>>'))
+        #self.assertEqual(u'fiukéi', affix(u'fiú', 'NOUN<POSS<PLUR>><ANP<PLUR>>'))
+        self.assertEqual(u'házukéi', affix(u'ház', 'NOUN<POSS<PLUR>><ANP<PLUR>>'))
+        #self.assertEqual(u'fiaikéi', affix(u'fiú', 'NOUN<PLUR><POSS<PLUR>><ANP<PLUR>>'))
+        #self.assertEqual(u'házaikéi', affix(u'ház', 'NOUN<PLUR><POSS<PLUR>><ANP<PLUR>'))
+        #self.assertEqual(u'fiaitokéinak', affix(u'fiú', 'NOUN<PLUR><POSS<PLUR><2>><ANP<PLUR>><CAS<DAT>>'))
         self.assertEqual(u'fiúék', affix(u'fiú', 'NOUN<PLUR<FAM>>'))
+        #self.assertEqual(u'fiáék', affix(u'fiú', 'NOUN<PLUR<FAM>><POSS>'))
+        #self.assertEqual(u'fiúéké', affix(u'fiú', 'NOUN<PLUR<FAM>><ANP>'))
+        #self.assertEqual(u'fiáéké', affix(u'fiú', 'NOUN<PLUR<FAM>><POSS><ANP>'))
 
         # kiváncsijaitokét kivácsi/ADJ<PLUR><POSS<PLUR><2>><ANP><CAS<ACC>>
         # kétezreinkével kétezer/NUM<PLUR><POSS<PLUR><1>><ANP><CAS<INS>>
