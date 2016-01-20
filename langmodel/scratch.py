@@ -1165,7 +1165,7 @@ class GFactory(object):
 
     # not full list
     # not opening e.g.: gáz bűz rés
-    N_opening_list = [u'út', u'nyár', u'ház', u'tűz', u'víz', u'föld', u'zöld', u'nyúl', u'híd', u'nyíl', u'bátor', u'ajak', u'kazal', u'ló', u'hó', u'fű', u'hazai']
+    N_opening_list = [u'út', u'nyár', u'ház', u'tűz', u'víz', u'föld', u'könyv', u'zöld', u'nyúl', u'híd', u'nyíl', u'bátor', u'ajak', u'kazal', u'ló', u'hó', u'fű', u'hazai']
 
     # not full list
     N_jaje = {
@@ -1429,6 +1429,21 @@ class Test (unittest.TestCase) :
         self.assertEquals(u'fuzionál', unicode(GFactory.parseNP(u'fúzió').appendSuffix(GFactory.parseSuffixum(u'nál'))))
         self.assertEquals(u'szlavista', unicode(GFactory.parseNP(u'szláv').appendSuffix(GFactory.parseSuffixum(u'ista'))))
         self.assertEquals(u'privatizál', unicode(GFactory.parseNP(u'privát').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+
+    def testPlural(self):
+        cases = [
+                (u'ember', u'emberek'),
+                (u'föld', u'földek'),
+                (u'könyv', u'könyvek'),
+                (u'út', u'utak'),
+                (u'nyár', u'nyarak'),
+                (u'ház', u'házak'),
+                (u'gáz', u'gázok'),
+                (u'tök', u'tökök'),
+                # todo (u'férfi', u'férfiak'),
+                ]
+        for singular, plural in cases:
+            self.assertEqual(plural, GFactory.parseNP(singular).makePlural().ortho)
 
     def checkPossessive(self, form, lemma, num, pers):
         self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(num, pers))))
