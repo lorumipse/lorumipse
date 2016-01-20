@@ -1219,6 +1219,8 @@ class GFactory(object):
 
     @staticmethod
     def parseNP(string):
+        if string == u'fia':
+            return Fia(u'fia')
         obj = Nomen(string)
         obj.is_vtmr = string in GFactory.N_vtmr_list
         obj.is_btmr = string in GFactory.N_btmr_list
@@ -1405,6 +1407,22 @@ class GFactory(object):
     @staticmethod
     def createCaseframe(description):
         return Caseframe(description)
+
+
+class Fia(Nomen):
+
+    def __init__(self, lemma, ortho=None):
+        super(Fia, self).__init__(lemma, ortho)
+        self.is_jaje = False
+
+    def onBeforeSuffixation(self, suffix):
+        if isinstance(suffix, PossessiveSuffixum):
+            nums = (self.numero, self.person, suffix.numero, suffix.person, suffix.possessed_numero)
+            if nums in [(1, 3, 1, 3, 1), (1, 3, 3, 3, 1)]:
+                self.ortho = u'fi'
+        else:
+            super(Fia, self).onBeforeSuffixation(suffix)
+
 
 import unittest
 
