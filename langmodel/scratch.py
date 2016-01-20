@@ -745,7 +745,7 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          if hasattr(self, method):
              return self.method()
          else:
-             raise Exception("No such case: case")
+             raise Exception("No such case: " + case)
 
      def makeNominativus(self):
          clone = self.cloneAs(Nomen)
