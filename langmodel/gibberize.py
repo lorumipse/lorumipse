@@ -6,7 +6,8 @@ import os
 import sys
 import codecs
 import random
-from basic_morphology import affix, det
+from basic_morphology import det
+from takdav_morphology import affix
 from phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
