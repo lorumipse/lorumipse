@@ -4,9 +4,9 @@ from scratch import GFactory, PossessiveSuffixum, PossessorSuffixum
 import re
 
 def affix(stem, ana):
+
     if ana.startswith('NOUN'):
         w = GFactory.parseNP(stem)
-
         if 'NOUN<PLUR>' in ana and not 'NOUN<PLUR><POSS' in ana: w = w.makePlural()
         if 'NOUN<PLUR<FAM>>' in ana: w = w.makePlural(familiar=True)
         if 'NOUN<PLUR><POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3, 3))
@@ -19,7 +19,6 @@ def affix(stem, ana):
         if 'NOUN<POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3, 1))
         if '<ANP>' in ana: w = w.appendSuffix(PossessorSuffixum(1))
         if '<ANP<PLUR>>' in ana: w = w.appendSuffix(PossessorSuffixum(3))
-
         if '<CAS<ACC>>' in ana: w = w.makeAccusativus()
         if '<CAS<DAT>>' in ana: w = w.makeDativus()
         if '<CAS<DEL>>' in ana: w = w.makeDelativus()
@@ -38,8 +37,14 @@ def affix(stem, ana):
         if '<CAS<TRA>>' in ana: w = w.makeTranslativusFactivus()
         if '<CAS<TEM>>' in ana: w = w.makeTemporalis()
         return w.ortho
+
     elif ana.startswith('VERB'):
         w = GFactory.parseV(stem)
+        if '<MODAL>' in ana:
+            w = w.makeModal()
+        tense = 0
+        if '<PAST>' in ana:
+            tense = -1
         numero = 1
         if '<PLUR>' in ana:
             numero = 3
@@ -59,11 +64,11 @@ def affix(stem, ana):
             mood = 2
         elif '<SUBJUNC-IMP>' in ana:
             mood = 3
-        # todo <MODAL>
         if '<INF>' in ana:
             return w.makeInfinitive(numero, person).ortho
         else:
-            return w.conjugate(numero, person, mood, 0, definite).ortho
+            return w.conjugate(numero, person, mood, tense, definite).ortho
+
     return stem
 
 
@@ -141,3 +146,13 @@ class TestMorphology(unittest.TestCase):
         # kiváncsijaitokét kivácsi/ADJ<PLUR><POSS<PLUR><2>><ANP><CAS<ACC>>
         # kétezreinkével kétezer/NUM<PLUR><POSS<PLUR><1>><ANP><CAS<INS>>
 
+        self.assertEqual(u'ad', affix(u'ad', 'VERB'))
+        self.assertEqual(u'adhat', affix(u'ad', 'VERB<MODAL>'))
+        self.assertEqual(u'adja', affix(u'ad', 'VERB<DEF>'))
+        self.assertEqual(u'adhatja', affix(u'ad', 'VERB<MODAL><DEF>'))
+        self.assertEqual(u'adod', affix(u'ad', 'VERB<PERS<2>><DEF>'))
+        self.assertEqual(u'adhatod', affix(u'ad', 'VERB<MODAL><PERS<2>><DEF>'))
+        self.assertEqual(u'adjátok', affix(u'ad', 'VERB<PLUR><PERS<2>><DEF>'))
+        self.assertEqual(u'adhatjátok', affix(u'ad', 'VERB<MODAL><PLUR><PERS<2>><DEF>'))
+        self.assertEqual(u'adtátok', affix(u'ad', 'VERB<PAST><PLUR><PERS<2>><DEF>'))
+        self.assertEqual(u'adhattátok', affix(u'ad', 'VERB<MODAL><PAST><PLUR><PERS<2>><DEF>'))

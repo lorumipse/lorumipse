@@ -271,7 +271,7 @@ class VerbalSuffixum1(aVerbalSuffixum):
     def getInterfix(self, stem):
          if not self.isValidSuffixConcatenation(stem.ortho, self.ortho):
              return Phonology.interpolateVowels(stem.needSuffixPhonocode(), u'A')
-         return self.ortho
+         return u''
 
     def getInvalidSuffixRegexList(self):
          return [r'lt,n',]
@@ -512,7 +512,7 @@ class Verbum(Wordform, iVerbal):
          return Phonology.isAffrikate(char) or Phonology.isSybyl(char)
 
      def isLastT(self):
-         char = Phonology.getLastConsonant(self.ortho)
+         char = Phonology.getLastConsonant(self.lemma)
          return (char == u't' or char == u'tt')
 
 
@@ -605,7 +605,7 @@ class Verbum(Wordform, iVerbal):
     
      # -hAt
      def makeModal(self):
-        pass
+         return self.appendSuffix(GFactory.parseSuffixum(u'hAt'))
     
      # Igekötő
      def addParticle(self, particle):
