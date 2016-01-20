@@ -87,7 +87,8 @@ class Suffixum(Wordform, iSuffixumMorphology, iSuffixumPhonology):
 
     def onBeforeSuffixed(self, stem):
         ortho = self.getNonOptionalSuffix()
-        if Phonology.canAssimilate(stem.ortho, ortho, char = u'v'):
+        char = u'v'
+        if Phonology.canAssimilate(stem.ortho, ortho, char):
             stem.doAssimilate(char)
             ortho = self.onAssimilated(char, ortho)
         ortho = Phonology.interpolateVowels(stem.needSuffixPhonocode(), ortho)
