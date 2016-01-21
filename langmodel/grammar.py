@@ -287,7 +287,15 @@ class Phonology :
 
     @staticmethod
     def canAssimilate(left_ortho, right_ortho, char) :
-        return not Phonology.isVowel(left_ortho[-1:]) and right_ortho[0:len(char)] == char
+        last = left_ortho[-1:]
+        if Phonology.isVowel(last):
+            return False
+        first = right_ortho[0:len(char)]
+        if not first == char:
+            return False
+        if first == u'j' and not last == u's':
+            return False
+        return True
 
     is_affrikate = {
         'dz' : True,
@@ -422,10 +430,8 @@ class Wordform (iWordformMorphology, iWordformPhonology) :
             ('@' if self.isAlternating() else '~')
 
     def doAssimilate(self, char):
-        if Phonology.getLastConsonant(self.ortho) == u's':
-            self.ortho = Phonology.doDoubleLastConsonant(self.ortho)
-        else:
-            self.ortho += char
+        self.ortho = Phonology.doDoubleLastConsonant(self.ortho)
+
 
 class Wordform1 (Wordform) : pass
 

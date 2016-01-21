@@ -261,7 +261,8 @@ class VerbalSuffixum1(aVerbalSuffixum):
              elif stem.needJs():
                  self.ortho = u's'
              elif stem.needJAssim():
-                 ortho = char = u'j'
+                 ortho = u'j'
+                 char = u'j'
                  if Phonology.canAssimilate(stem.ortho, ortho, char):
                      stem.doAssimilate(char)
                      ortho = self.onAssimilated(char, ortho)
