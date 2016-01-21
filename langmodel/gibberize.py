@@ -68,8 +68,8 @@ def parse_ana(ana):
         raise Exception(ana)
 
 
-def gibberize_sentence(sentence):
-    generated_sentence = [generate_word_from_token(word, lemma, ana) for word, lemma, ana in sentence]
+def gibberize_sentence(sentence, vocabulary_map=None):
+    generated_sentence = [generate_word_from_token(word, lemma, ana, vocabulary_map) for word, lemma, ana in sentence]
     generated_sentence = correct_articles(generated_sentence)
     return generated_sentence
 
@@ -89,10 +89,16 @@ def find_nom_np_end(sentence):
     return head_index
 
 
-def generate_word_from_token(word, lemma, ana):
+def generate_word_from_token(word, lemma, ana, vocabulary_map):
     pos, infl = parse_ana(ana)
     if pos in ["NOUN", "ADJ", "VERB"] and lemma not in KEPT_WORDS:
-        stem, gen_word = generate_word_with_ana(pos, infl)
+        if vocabulary_map is not None and (lemma, pos) in vocabulary_map:
+            stem = vocabulary_map[(lemma, pos)]
+            gen_word = affix(stem, pos + infl)
+        else:
+            stem, gen_word = generate_word_with_ana(pos, infl)
+            if vocabulary_map is not None:
+                vocabulary_map[(lemma, pos)] = stem
     elif lemma == "a" and ana == "ART":
         stem, gen_word = None, ARTICLE_SYMBOL
     else:
@@ -130,8 +136,9 @@ def print_sentence(sentence):
 
 def gibberize_file(file):
     text = []
+    vocabulary_map = {}
     for sentence in read_sentence(file):
-        generated_sentence = gibberize_sentence(sentence)
+        generated_sentence = gibberize_sentence(sentence, vocabulary_map)
         text.append(generated_sentence)
     return text
 

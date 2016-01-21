@@ -9,7 +9,7 @@ import codecs
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 
-SENTENCES_IN_PART = 10
+SENTENCES_IN_PART = 7
 
 output_filename_prefix = sys.argv[1] if len(sys.argv) > 1 else "part"
 
