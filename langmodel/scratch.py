@@ -693,6 +693,7 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          self.numero = 1
          self.person = 3
          self.is_jaje = None
+         self.is_familiar = False
 
      """ Hint.
       """
@@ -716,9 +717,11 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
          return False
 
      def makePlural(self, familiar=False):
-         clone = self.cloneAs(Nomen)
+         clone = self.appendSuffix(GFactory.parseSuffixum('_Vk' if not familiar else u'ék'))
          clone.numero = 3
-         return clone.appendSuffix(GFactory.parseSuffixum('_Vk' if not familiar else u'ék'))
+         clone.is_opening = True
+         clone.is_familiar = True
+         return clone
 
      def isSingular(self):
          return (self.numero == 1)
@@ -750,9 +753,13 @@ class Nomen(Wordform, iPossessable, iNominalCases, iVirtualNominalCases, iNumPer
              raise Exception("No such case: " + case)
 
      def makeNominativus(self):
-         clone = self.cloneAs(Nomen)
-         clone.case = 'Nominativus'
-         return clone
+         if self.isNominativus():
+             return self.cloneAs(Nomen)
+         clone = Nomen(self.lemma)
+         if self.isPlural():
+             return clone.makePlural(familiar=self.is_familiar)
+         else:
+             return clone
 
      def makeAccusativus(self):
          clone = self.makeNominativus().appendSuffix(GFactory.parseSuffixum(u'_Vt'))
