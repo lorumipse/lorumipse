@@ -13,9 +13,9 @@ from phonmodel import create_model_from_file, generate_word
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
 
-NOUN_TRAINING = ['elekfi-nounstems-A.txt', 'elekfi-nounstems-B.txt', 'elekfi-nounstems-C.txt']
-ADJ_TRAINING = ['elekfi-adjstems-A.txt', 'elekfi-adjstems-B.txt', 'elekfi-adjstems-C.txt']
-VERB_TRAINING = ['elekfi-verbstems-a.txt', 'elekfi-verbstems-b.txt', 'elekfi-verbstems-c.txt']
+NOUN_TRAINING = ['dt-noun-back.txt', 'dt-noun-front-round.txt', 'dt-noun-front-unround.txt']
+ADJ_TRAINING = ['dt-adj-back.txt', 'dt-adj-front-round.txt', 'dt-adj-front-unround.txt']
+VERB_TRAINING = ['dt-verb-back.txt', 'dt-verb-front-round.txt', 'dt-verb-front-unround.txt']
 
 NON_CONTENT_NOUNS = [u"ez", u"minden", u"az", u"aki", u"amely", u"ami", u"más", u"egyik", u"saját", u"másik",
                      u"mely", u"semmi", u"senki",
