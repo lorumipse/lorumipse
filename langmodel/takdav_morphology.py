@@ -48,7 +48,10 @@ def affix(stem, ana):
         numero = 1
         if '<PLUR>' in ana:
             numero = 3
+        definite = 0
         person = 3
+        if '<DEF>' in ana:
+            definite = 3
         if '<PERS<1>>' in ana:
             person = 1
         elif '<PERS<1<OBJ2>>>' in ana:
@@ -56,9 +59,6 @@ def affix(stem, ana):
             definite = 2
         elif '<PERS<2>>' in ana:
             person = 2
-        definite = 0
-        if '<DEF>' in ana:
-            definite = 3
         mood = 1
         if '<COND>' in ana:
             mood = 2
@@ -80,6 +80,7 @@ class TestMorphology(unittest.TestCase):
     def test_affix(self):
         self.assertEqual(u'tapáljátok', affix(u'tapál', 'VERB<PERS<2>><PLUR><DEF>'))
         self.assertEqual(u'tapáltok', affix(u'tapál', 'VERB<PERS<2>><PLUR>'))
+        self.assertEqual(u'tapállak', affix(u'tapál', 'VERB<PERS<1<OBJ2>>>'))
 
         self.assertEqual(u'futuroknak', affix(u'futur', 'NOUN<PLUR><CAS<DAT>>'))
         self.assertEqual(u'futurt', affix(u'futur', 'NOUN<CAS<ACC>>'))
