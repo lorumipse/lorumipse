@@ -167,6 +167,7 @@ class TestMorphology(unittest.TestCase):
         self.assertEqual(u"könyésszel", affix(u"könyész", "NOUN<CAS<INS>>"))
 
         self.assertEqual(u"pirosakat", affix(u"piros", "ADJ<PLUR><CAS<ACC>>"))
+        self.assertEqual(u"fúrozta", affix(u"fúrozik", "VERB<PAST><DEF>"))
 
 if __name__ == '__main__':
     unittest.main()

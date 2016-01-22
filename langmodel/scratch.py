@@ -1393,6 +1393,9 @@ class GFactory(object):
 
     @staticmethod
     def parseV(string):
+        ikes = (string[-2:] == 'ik')
+        if ikes:
+            string = string[:-2]
         obj = Verbum(string)
         obj.setCase('13100')
         obj.is_btmr = string in GFactory.V_btmr_list
@@ -1411,6 +1414,8 @@ class GFactory(object):
             obj.need_suffix_I = GFactory.need_suffix_I_verb_list[string]
         if string in GFactory.ikes:
             obj.ikes = GFactory.ikes[string]
+        elif ikes: # temporarily
+            obj.ikes = True
         return obj
 
     @staticmethod
