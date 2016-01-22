@@ -878,7 +878,7 @@ class Adj(Nomen):
     def makeComparativus(self):
          if not (self.case == "Nominativus"):
              raise Exception('Adj Comparativus needs Nominativus')
-         bb = GFactory.parseSuffixum(u'_Vbb').cloneAs('AdjSuffixum')
+         bb = GFactory.parseSuffixum(u'_Vbb').cloneAs(AdjSuffixum)
          A = self.appendSuffix(bb)
          A.case = 'Comparativus'
          return A
@@ -904,7 +904,7 @@ class Adj(Nomen):
     def kiemelo(self):
          if not (self.case == "Comparativus" or self.case == "Superlativus" or self.case == "Superlativus2"):
              raise Exception('Adj "kiemelo" needs Comparativus or Superlativus or Superlativus2')
-         bb = GFactory.parseSuffixum(u'ik').cloneAs('AdjSuffixum')
+         bb = GFactory.parseSuffixum(u'ik').cloneAs(AdjSuffixum)
          A = self.appendSuffix(bb)
          A.case = '+'
          return A
@@ -1246,7 +1246,7 @@ class GFactory(object):
 
     @staticmethod
     def parseADJ(string):
-        obj = GFactory.parseNP(string).cloneAs('Adj')
+        obj = GFactory.parseNP(string).cloneAs(Adj)
         obj.is_opening = True; # a melléknevek túlnyomó többsége nyitótővű
         return obj
 

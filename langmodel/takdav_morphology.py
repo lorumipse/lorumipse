@@ -5,18 +5,23 @@ import re
 
 def affix(stem, ana):
 
-    if ana.startswith('NOUN'):
-        w = GFactory.parseNP(stem)
-        if 'NOUN<PLUR>' in ana and not 'NOUN<PLUR><POSS' in ana: w = w.makePlural()
-        if 'NOUN<PLUR<FAM>>' in ana: w = w.makePlural(familiar=True)
-        if 'NOUN<PLUR><POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3, 3))
-        if 'NOUN<PLUR><POSS<PLUR><1>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 1, 3))
-        if 'NOUN<PLUR><POSS<PLUR><2>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 2, 3))
-        if 'NOUN<PLUR><POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3, 3))
-        if 'NOUN<POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3, 1))
-        if 'NOUN<POSS<PLUR><1>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 1, 1))
-        if 'NOUN<POSS<PLUR><2>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 2, 1))
-        if 'NOUN<POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3, 1))
+    if ana.startswith('NOUN') or ana.startswith('ADJ'):
+        if ana.startswith('NOUN'):
+            w = GFactory.parseNP(stem)
+            ana = 'X' + ana[4:]
+        elif ana.startswith('ADJ'):
+            w = GFactory.parseADJ(stem)
+            ana = 'X' + ana[3:]
+        if 'X<PLUR>' in ana and not 'X<PLUR><POSS' in ana: w = w.makePlural()
+        if 'X<PLUR<FAM>>' in ana: w = w.makePlural(familiar=True)
+        if 'X<PLUR><POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3, 3))
+        if 'X<PLUR><POSS<PLUR><1>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 1, 3))
+        if 'X<PLUR><POSS<PLUR><2>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 2, 3))
+        if 'X<PLUR><POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3, 3))
+        if 'X<POSS>' in ana: w = w.appendSuffix(PossessiveSuffixum(1, 3, 1))
+        if 'X<POSS<PLUR><1>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 1, 1))
+        if 'X<POSS<PLUR><2>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 2, 1))
+        if 'X<POSS<PLUR>>' in ana: w = w.appendSuffix(PossessiveSuffixum(3, 3, 1))
         if '<ANP>' in ana: w = w.appendSuffix(PossessorSuffixum(1))
         if '<ANP<PLUR>>' in ana: w = w.appendSuffix(PossessorSuffixum(3))
         if '<CAS<ACC>>' in ana: w = w.makeAccusativus()
@@ -161,6 +166,7 @@ class TestMorphology(unittest.TestCase):
         self.assertEqual(u"árlánokat", affix(u"árlán", "NOUN<PLUR><CAS<ACC>>"))
         self.assertEqual(u"könyésszel", affix(u"könyész", "NOUN<CAS<INS>>"))
 
+        self.assertEqual(u"pirosakat", affix(u"piros", "ADJ<PLUR><CAS<ACC>>"))
 
 if __name__ == '__main__':
     unittest.main()
