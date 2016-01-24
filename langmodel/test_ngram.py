@@ -1,9 +1,10 @@
 import unittest
+import itertools
 from ngram import NGram
 
 class NGramTestCase(unittest.TestCase):
     def setUp(self):
-        self.text = "abraka dabra, abrak a dobra, ablak a dubra"
+        self.text = ["abraka dabra", "abrak a dobra", "ablak a dubra"]
         self.trigram = NGram(3, self.text)
 
     def test_calc_distr(self):
@@ -16,26 +17,29 @@ class NGramTestCase(unittest.TestCase):
 
     def test_calc_trans_prob(self):
         trans_prob = self.trigram.trans_prob
-        self.assertEqual(trans_prob[0][()]['a'], float(self.count_ngram('a', self.text)) / len(self.text))
+        self.assertEqual(trans_prob[0][()]['a'], float(self.count_ngram('a', self.text)) / self.total_seqs_length(self.text))
         self.assertEqual(trans_prob[2][('a', 'b')]['l'], float(self.count_ngram('abl', self.text)) / self.count_ngram('ab', self.text))
 
     def test_generate(self):
-        text = list(self.trigram.generate(1000))
-        self.assertTrue(self.count_ngram("br", "".join(text)) > 0)
+        text = list(itertools.islice(self.trigram.generate_token(), 1000))
+        self.assertTrue(self.count_ngram("br", ["".join(text)]) > 0)
 
-    def test_generate_with_history(self):
-        text = list(self.trigram.generate(1000, ", "))
-        self.assertTrue(self.count_ngram("br", "".join(text)) > 0)
-        self.assertTrue(text[0] == 'a')
-
-    def count_ngram(self, ngram, text):
+    def count_ngram(self, ngram, seqs):
         n = len(ngram)
         cnt = 0
-        for i in xrange(len(text)-n+1):
-            if text[i:i+n] == ngram:
-                cnt += 1
+        for seq in seqs:
+            separated_seq = ["#"] + list(seq) + ["#"]
+            for i in xrange(len(separated_seq)-n+1):
+                if tuple(separated_seq[i:i+n]) == tuple(ngram):
+                    cnt += 1
         return cnt
+
+    def total_seqs_length(self, seqs):
+        return sum([len(seq) + 2 for seq in seqs])
         
     def tearDown(self):
         pass
 
+
+if __name__ == '__main__':
+    unittest.main()

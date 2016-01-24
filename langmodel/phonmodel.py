@@ -106,18 +106,17 @@ def weighted_choice(choices):
 def generate_word(model):
     ngram = weighted_choice(model)  # choose vowel harmony
     max_attempt = 10
-    for w in ngram.generate_sequences(length=max_attempt, sep='#'):
+    for w in ngram.generate_sequences(n_sequences=max_attempt):
        if len(w) >= MIN_WORD_LENGTH and len(w) <= MAX_WORD_LENGTH:
            return "".join(w)
     raise Exception("could not generate a word within length boundaries")
 
 
 def init_ngram(training_words):
-    text = ['#']
+    words = []
     for word in training_words:
-        text += list(split_letters(word))
-        text.append('#')
-    ngram = NGram(3, text)
+        words.append(list(split_letters(word)))
+    ngram = NGram(3, words)
     return ngram
 
 
@@ -139,5 +138,5 @@ if __name__ == "__main__":
     else:
         model = create_model_from_file(input_files)
 
-    for i in xrange(100):
+    for i in xrange(10000):
         print generate_word(model)

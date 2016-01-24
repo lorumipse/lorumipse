@@ -2,48 +2,54 @@ from collections import defaultdict
 import random
 
 class NGram(object):
-    def __init__(self, n, tokens):
+    separator = "#"
+
+    def __init__(self, n, sequences):
         self.ngram_order = n-1
-        self.ngram_distr = self.calc_ngram_distr(n, tokens)
+        self.ngram_distr = self.calc_ngram_distr(n, sequences)
         self.trans_prob = self.calc_trans_prob(self.ngram_distr)
 
-    def generate(self, length=None, history=()):
-        work_hist = tuple(history[:])
+    def generate_token(self):
+        work_hist = (self.separator,)
         i = 0
-        while True if length == None else i < length:
+        while True:
             token = self.choose(self.trans_prob[len(work_hist)][work_hist])
             yield token
-            work_hist = self.add_to_history(work_hist, token, self.ngram_order)
+            if token == self.separator:
+                work_hist = (self.separator,)
+            else:
+                work_hist = self.add_to_history(work_hist, token, self.ngram_order)
             i += 1
 
-    def generate_sequences(self, sep, length=None, history=()):
+    def generate_sequences(self, n_sequences=None):
         seq = []
         i = 0
-        if length == 0:
+        if n_sequences == 0:
             return
-        for sym in self.generate(history=(sep)):
-            if sym == sep:
+        for sym in self.generate_token():
+            if sym == self.separator:
                 yield seq
                 seq = []
                 i += 1
-                if i == length:
+                if i == n_sequences:
                     return
             else:
                 seq.append(sym)
 
-    def calc_ngram_distr(self, n, tokens):
+    def calc_ngram_distr(self, n, sequences):
         distrib = []
         for order in range(n):
             distrib.append(defaultdict(int))
-        history = ()
-        for token in tokens:
-            for order in range(len(history)+1):
-                if order == 0:
-                    order_history = ()
-                else:
-                    order_history = history[-order:]
-                distrib[order][(order_history + (token,))] += 1
-            history = self.add_to_history(history, token, n-1)
+        for seq in sequences:
+            history = ()
+            for token in [self.separator] + list(seq) + [self.separator]:
+                for order in range(len(history)+1):
+                    if order == 0:
+                        order_history = ()
+                    else:
+                        order_history = history[-order:]
+                    distrib[order][(order_history + (token,))] += 1
+                history = self.add_to_history(history, token, n-1)
         return distrib
 
     @staticmethod
