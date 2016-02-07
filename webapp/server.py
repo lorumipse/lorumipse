@@ -12,6 +12,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(SCRIPT_DIR, "..", "build", "text_template")
 STATIC_ROOT = os.path.join(SCRIPT_DIR, "static")
 
+
 class LorumIpseHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path
