@@ -6,7 +6,7 @@ import mimetypes
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from langmodel.generate import generate_text
 
-port_number = sys.argv[1] if len(sys.argv) > 1 else 9999
+port_number = int(sys.argv[1]) if len(sys.argv) > 1 else 9999
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 TEMPLATE_DIR = os.path.join(SCRIPT_DIR, "..", "build", "text_template")
