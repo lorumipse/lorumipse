@@ -63,7 +63,44 @@ var lorum = (function() {
     return my;
 })();
 
+var lorumNav = (function() {
+    var my = {};
+    function collapseSection(section) {
+        $(section).find(".collapsible-header")
+            .removeClass("collapsible-header-open")
+            .addClass("collapsible-header-closed");
+        $(section).find(".collapsible-body").hide("fast");
+    }
+
+    function openSection(section) {
+        $(section).find(".collapsible-header")
+            .removeClass("collapsible-header-closed")
+            .addClass("collapsible-header-open");
+        $(section).find(".collapsible-body").show("fast");
+    }
+
+    function bindCollapsible(index, section) {
+        var toggleHandler = function(event) {
+            if ($(section).find(".collapsible-header-closed").length == 0) {
+                collapseSection(section);
+            } else {
+                openSection(section);
+            }
+        }
+        $(section).find(".collapsible-header").click(toggleHandler);
+        $(section).find(".collapsible-body").hide();
+        collapseSection(section);
+    }
+
+    my.init = function() {
+        $(".collapsible-section").each(bindCollapsible);
+    };
+
+    return my;
+})();
+
 $(function() {
+    lorumNav.init();
     var target = "#lorumtext";
     $("#more").click(function() {
         lorum.addGeneratedTextToTarget(target, false).then(function() {
