@@ -15,6 +15,7 @@ output_filename_prefix = sys.argv[1] if len(sys.argv) > 1 else "part"
 
 sentence_delimiter_re = re.compile(r'^# \d+$')
 
+
 def read_sentence(file):
     lines = []
     for line in file:
@@ -41,8 +42,24 @@ def read_n_sentences(file, n):
             except StopIteration:
                 eof = True
                 break
-        yield sentences
+        if validate_sentences(sentences):
+            yield sentences
+        else:
+            sys.stderr.write("omitting " + " ".join(map(lambda s: " ".join(s), sentences)) + "\n")
         sentences = []
+
+
+def validate_sentences(sentences):
+    # wrong tokenization of html entities
+    for sentence in sentences:
+        for i in xrange(len(sentence) - 3):
+            if sentence[i].startswith("&\t") and sentence[i+1].startswith("#\t") and sentence[i+2].endswith("\tNUM"):
+                return False
+    # too many numbers
+    num_numbers = len([token for sentence in sentences for token in sentence if token.endswith("\tNUM")])
+    if num_numbers >= 10:
+        return False
+    return True
 
 
 part_index = 0
