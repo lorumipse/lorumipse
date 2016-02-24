@@ -49,14 +49,29 @@ def add_spacing(sentence):
         return any([str.startswith(pref) for pref in prefixes])
 
     sentence_with_spacing = []
+    quote_open = False
     for word, lemma, ana in sentence:
+        result_word = word
         no_space = None
         if ana == "PUNCT":
             if word in [":", ")", "]", "}"] or starts_with_any(word, [".", ",", "!", "?"]):
                 no_space = "left"
             elif word in ["(", "[", "{"]:
                 no_space = "right"
-        sentence_with_spacing.append((word, lemma, ana, no_space))
+            elif word == '"':
+                if quote_open:
+                    no_space = "left"
+                    result_word = u"\u201d"
+                    quote_open = False
+                else:
+                    no_space = "right"
+                    result_word = u"\u201e"
+                    quote_open = True
+            elif word in ["&ldquo;", "&raquo;", "&bdquo;"]:
+                no_space = "right"
+            elif word in ["&rdquo;", "&laquo;"]:
+                no_space = "left"
+        sentence_with_spacing.append((result_word, lemma, ana, no_space))
     return sentence_with_spacing
 
 
