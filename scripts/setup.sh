@@ -3,7 +3,7 @@
 script_dir=$(dirname $0)
 root_dir=$script_dir/..
 template_dir=build/text_template
-corpus_file=${1:-$root_dir/resource/sg3_nom_acc_sentences_xaa.txt.gz}
+corpus_file=${1:-$root_dir/resource/non-pers12-xaa-10m.txt.gz}
 
 cd $root_dir
 
