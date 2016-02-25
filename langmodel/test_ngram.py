@@ -2,6 +2,7 @@ import unittest
 import itertools
 from ngram import NGram
 
+
 class NGramTestCase(unittest.TestCase):
     def setUp(self):
         self.text = ["abraka dabra", "abrak a dobra", "ablak a dubra"]
@@ -18,6 +19,7 @@ class NGramTestCase(unittest.TestCase):
     def test_calc_trans_prob(self):
         trans_prob = self.trigram.trans_prob
         self.assertEqual(trans_prob[0][()]['a'], float(self.count_ngram('a', self.text)) / self.total_seqs_length(self.text))
+        self.assertEqual(trans_prob[1][('#',)]['a'], 1)
         self.assertEqual(trans_prob[2][('a', 'b')]['l'], float(self.count_ngram('abl', self.text)) / self.count_ngram('ab', self.text))
 
     def test_generate(self):
@@ -35,7 +37,8 @@ class NGramTestCase(unittest.TestCase):
         return cnt
 
     def total_seqs_length(self, seqs):
-        return sum([len(seq) + 2 for seq in seqs])
+        s = sum([len(seq) for seq in seqs])
+        return s
         
     def tearDown(self):
         pass

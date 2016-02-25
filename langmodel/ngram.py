@@ -1,6 +1,7 @@
 from collections import defaultdict
 import random
 
+
 class NGram(object):
     separator = "#"
 
@@ -36,19 +37,30 @@ class NGram(object):
             else:
                 seq.append(sym)
 
+    def dump(self):
+        for order in self.ngram_distr:
+            for gram, freq in order.iteritems():
+                print gram, freq
+        for order in self.trans_prob:
+            for gram, freq in order.iteritems():
+                print gram, freq
+
     def calc_ngram_distr(self, n, sequences):
         distrib = []
         for order in range(n):
             distrib.append(defaultdict(int))
         for seq in sequences:
             history = ()
+            # separator special case: equals to number of sequences
+            distrib[0][(self.separator,)] += 1
             for token in [self.separator] + list(seq) + [self.separator]:
                 for order in range(len(history)+1):
                     if order == 0:
                         order_history = ()
                     else:
                         order_history = history[-order:]
-                    distrib[order][(order_history + (token,))] += 1
+                    if order != 0 or token != self.separator:
+                        distrib[order][(order_history + (token,))] += 1
                 history = self.add_to_history(history, token, n-1)
         return distrib
 
@@ -56,12 +68,10 @@ class NGram(object):
     def add_to_history(old_history, new_token, n):
         return (old_history + (new_token,))[-n:]
 
-    @staticmethod
-    def calc_trans_prob(distr):
-        total = sum(distr[0].values())
+    def calc_trans_prob(self, distr):
+        total = sum([freq for ngram, freq in distr[0].iteritems() if ngram != (self.separator,)])
         trans_prob = []
         for order, order_distr in enumerate(distr):
-            norm_order_distr = {}
             order_trans_distr = defaultdict(lambda: defaultdict(int))
             for ngram, freq in order_distr.iteritems():
                 hist = ngram[:-1]
@@ -73,11 +83,11 @@ class NGram(object):
 
     @staticmethod
     def choose(distrib):
-       rnd = random.random()
-       cumul_prob = 0
-       for token, prob in distrib.iteritems():
-           cumul_prob += prob
-           if cumul_prob > rnd:
-               return token
-       return token
+        rnd = random.random()
+        cumul_prob = 0
+        for token, prob in distrib.iteritems():
+            cumul_prob += prob
+            if cumul_prob > rnd:
+                return token
+        return token
 
