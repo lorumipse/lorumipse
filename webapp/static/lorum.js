@@ -2,7 +2,7 @@ var lorum = (function() {
     var my = {};
 
     function formatToken(token) {
-        return '<span title="' + token[1] + "/" + token[2] + '">' + token[0] + '</span>';
+        return '<span>' + token[0] + '</span>';
     }
 
     function formatLorum(loremData) {
