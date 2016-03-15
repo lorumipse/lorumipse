@@ -2,60 +2,31 @@
 
 from ngram import NGram
 import sys
-import itertools
 import codecs
 import random
+from collections import defaultdict
 
-DECOMPOSE_LONG_CHARS = True
 MIN_WORD_LENGTH = 4
 MAX_WORD_LENGTH = 16
+GENERATING_CONSTRAINTS_ATTEMPT_LIMIT = 100
 
-complex_chars = ["sz", "cs", "dz", "dzs", "gy", "ly", "ny", "ty", "zs"]
+complex_consontants = ["sz", "cs", "dz", "dzs", "gy", "ly", "ny", "ty", "zs"]
 simple_consonants = ["b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "r", "s", "t", "v", "z"]
 
-complex_chars_encoding = {
-    "sz": u"\u015B", # s'
-    "zs": u"\u017E",  # z`'
-    "cs": u"\u010D", # c`'
-    "dz": u"\u1E0B", # d^.
-    "dzs": u"\u010F", # d`'
-    "gy": u"\u01F5", # g'
-    "ly": u"\u013E", # l`'
-    "ny": u"\u0148", # n with caron
-    "ty": u"\u0165"  # t with caron
-}
-
-def decompose_long_chars(string):
-    decomp_string = string
-    decomp_string = decomp_string.replace(lc, decomp + decomp)
-    
-def encode_complex_chars(string):
-    convstring = string
-    for lc in long_complex_chars:
-        decomp = long_complex_chars[1:]
-        decomp_encoded = complex_chars_encoding[decomp]
-        convstring = convstring.replace(lc, decomp_encoded + decomp_encoded)
-    for orig, conv in complex_chars_encoding.iteritems():
-        convstring = convstring.replace(orig, conv)
-    return convstring
-
-def decode_complex_chars(string):
-    convstring = string
-    for orig, conv in complex_chars_encoding.iteritems():
-        convstring = convstring.replace(conv, orig)
-    return convstring
 
 def lengthen_letter(letter):
-    if letter in complex_chars:
+    if letter in complex_consontants:
         return letter[0] + letter
     else:
         return letter + letter
 
+
 def is_letter_at(string, pos, letter):
     return string[pos:pos+len(letter)] == letter
 
+
 def identify_letter_at(string, pos):
-    for compl in complex_chars:
+    for compl in complex_consontants:
         long = lengthen_letter(compl)
         if is_letter_at(string, pos, long):
             return long
@@ -66,6 +37,7 @@ def identify_letter_at(string, pos):
         return long
     else:
         return string[pos]
+
 
 def split_letters(string):
     letters = []
@@ -78,7 +50,7 @@ def split_letters(string):
 
 
 def create_model(word_sets):
-    model = [(init_ngram(word_set), len(word_set)) for word_set in word_sets]
+    model = [(init_ngram(word_set), len(word_set), CVConstraint(word_set)) for word_set in word_sets]
     return model
 
 
@@ -92,24 +64,28 @@ def create_model_from_file(word_files):
     return model
 
 
-def weighted_choice(choices):
-   total = sum(w for c, w in choices)
-   r = random.uniform(0, total)
-   upto = 0
-   for c, w in choices:
-      if upto + w >= r:
-         return c
-      upto += w
-   assert False, "Shouldn't get here"
+def choose_submodel(submodels):
+    total = sum(w for ngram, w, constraint in submodels)
+    r = random.uniform(0, total)
+    upto = 0
+    for submodel in submodels:
+        w = submodel[1]
+        if upto + w >= r:
+            return submodel
+        upto += w
+    assert False, "Shouldn't get here"
 
 
 def generate_word(model):
-    ngram = weighted_choice(model)  # choose vowel harmony
-    max_attempt = 10
-    for w in ngram.generate_sequences(n_sequences=max_attempt):
-       if len(w) >= MIN_WORD_LENGTH and len(w) <= MAX_WORD_LENGTH:
-           return "".join(w)
-    raise Exception("could not generate a word within length boundaries")
+    ngram, weight, cv_constraint = choose_submodel(model)  # choose vowel harmony
+    candidates = list(ngram.generate_sequences(n_sequences=GENERATING_CONSTRAINTS_ATTEMPT_LIMIT))
+    for w in candidates:
+        if len(w) >= MIN_WORD_LENGTH and len(w) <= MAX_WORD_LENGTH:
+            word = "".join(w)
+            valid = cv_constraint.is_valid(word)
+            if valid:
+                return word
+    raise Exception("could not generate a word within constraints")
 
 
 def init_ngram(training_words):
@@ -125,7 +101,30 @@ def read_words(file):
     for line in file:
         words.append(line.strip())
     return words
- 
+
+
+class CVConstraint(object):
+    def __init__(self, word_set, validity_abs_freq_threshold=1):
+        self.validity_abs_freq_threshold = validity_abs_freq_threshold
+        self.c_skel_freq = defaultdict(int)
+        for word in word_set:
+            c_skel = CVConstraint.get_c_skel(word)
+            self.c_skel_freq[c_skel] += 1
+
+    @staticmethod
+    def get_c_skel(word):
+        letters = split_letters(word)
+        return "".join(["c" if CVConstraint.is_consonant(letter) else letter for letter in letters])
+
+    @staticmethod
+    def is_consonant(letter):
+        return letter in complex_consontants + simple_consonants
+
+    def is_valid(self, word):
+        c_skel = self.get_c_skel(word)
+        freq = self.c_skel_freq.get(c_skel)
+        return freq >= self.validity_abs_freq_threshold
+
 
 if __name__ == "__main__":
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
