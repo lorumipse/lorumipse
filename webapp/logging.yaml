@@ -1,0 +1,12 @@
+version: 1
+formatters:
+  langmodelFormatter:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  langmodelHandler:
+    formatter: langmodelFormatter
+    class: logging.StreamHandler
+loggers:
+  langmodel:
+    handlers: ["langmodelHandler"]
+    level: INFO

@@ -12,5 +12,5 @@ if ! docker images $IMAGE | grep $IMAGE; then
     exit 1
 fi
 
-docker run -d -p 80:9999 lorumipse
+docker run -d -p 80:9999 $IMAGE
 echo Use http://$(docker-machine ip):80/
