@@ -5,7 +5,7 @@ if [ -z $DOCKER_HOST ]; then
 	exit 1
 fi
 
-IMAGE=lorumipse
+IMAGE=eu.gcr.io/lorumipse/lorumipse
 
 if ! docker images $IMAGE | grep $IMAGE; then
     echo "Image is not built yet, build it with docker build -t lorumipse ."

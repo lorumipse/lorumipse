@@ -1,12 +1,15 @@
 version: 1
 formatters:
-  langmodelFormatter:
+  lorumFormatter:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 handlers:
-  langmodelHandler:
-    formatter: langmodelFormatter
+  lorumHandler:
+    formatter: lorumFormatter
     class: logging.StreamHandler
 loggers:
   langmodel:
-    handlers: ["langmodelHandler"]
+    handlers: ["lorumHandler"]
+    level: INFO
+  server:
+    handlers: ["lorumHandler"]
     level: INFO
