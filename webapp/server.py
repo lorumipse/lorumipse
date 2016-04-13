@@ -50,7 +50,11 @@ def generate_subsequent_paragraph():
 
 
 def log_request(view):
-    logger.info(" ".join(["request", view, request.remote_addr]))
+    logger.info(" ".join(["request", view, get_remote_address()]))
+
+
+def get_remote_address():
+    return request.access_route[-2] if len(request.access_route) > 1 else request.access_route[0]
 
 
 if __name__ == "__main__":
