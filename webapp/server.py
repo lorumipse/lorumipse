@@ -35,17 +35,20 @@ def root():
 def generate_first_paragraph():
     log_request("generate_initial")
     text = generate.generate_text(True)
-    return text, 200, {
-        "Content-type": "text/json; charset=utf-8"
-    }
+    return text, 200, generate_headers()
 
 
 @app.route("/generate/")
 def generate_subsequent_paragraph():
     log_request("generate_other")
     text = generate.generate_text(False)
-    return text, 200, {
-        "Content-type": "text/json; charset=utf-8"
+    return text, 200, generate_headers()
+
+
+def generate_headers():
+    return {
+        "Content-type": "text/json; charset=utf-8",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
     }
 
 
