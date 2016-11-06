@@ -4,63 +4,126 @@
     margin-right: auto;
 }
 
-#header {
-    margin-left: 30px;
-    margin-right: 30px;
+@media only screen and (max-width: 600px) {
+    #header {
+        margin-left: 5vw;
+        margin-right: 5vw;
+    }
+
+    #logo {
+        position: relative;
+        width: 26.7vw;
+        height: 33.3vw;
+        float: left;
+    }
+
+    #mustache {
+        transform: rotate(90deg);
+        position: absolute;
+        top: 16.7vw;
+        left: 6.7vw;
+        font-size: 20vw;
+    }
+
+    #brim {
+        transform: rotate(30deg);
+        position: absolute;
+        top: 0px;
+        left: 1vw;
+        font-size: 20vw;
+    }
+
+    #crown {
+        transform: rotate(-60deg);
+        position: absolute;
+        top: 2.3vw;
+        left: 7.7vw;
+        font-size: 13.3vw;
+    }
+
+    #lefteye {
+        position: absolute;
+        top: 8.3vw;
+        left: 5vw;
+        font-size: 10vw;
+    }
+
+    #righteye {
+        position: absolute;
+        top: 11.7vw;
+        left: 11vw;
+        font-size: 10vw;
+    }
+
+    #title {
+        position: relative;
+        line-height: 28.3vw;
+        font-size: 11.7vw;
+        font-family: 'Goudy Bookletter 1911', Georgia, serif;
+        left: 3.3vw;
+        top: 5.8vw;
+    }
 }
 
-#logo {
-    position: relative;
-    width: 160px;
-    height: 200px;
-    float: left;
-}
+@media only screen and (min-width: 600px) {
+    #header {
+        margin-left: 30px;
+        margin-right: 30px;
+    }
 
-#mustache {
-    transform: rotate(90deg);
-    position: absolute;
-    top: 100px;
-    left: 40px;
-    font-size: 120px;
-}
+    #logo {
+        position: relative;
+        width: 160px;
+        height: 200px;
+        float: left;
+    }
 
-#brim {
-    transform: rotate(30deg);
-    position: absolute;
-    top: 0px;
-    left: 6px;
-    font-size: 120px;
-}
+    #mustache {
+        transform: rotate(90deg);
+        position: absolute;
+        top: 100px;
+        left: 40px;
+        font-size: 120px;
+    }
 
-#crown {
-    transform: rotate(-60deg);
-    position: absolute;
-    top: 14px;
-    left: 46px;
-    font-size: 80px;
-}
+    #brim {
+        transform: rotate(30deg);
+        position: absolute;
+        top: 0px;
+        left: 6px;
+        font-size: 120px;
+    }
 
-#lefteye {
-    position: absolute;
-    top: 50px;
-    left: 30px;
-    font-size: 60px;
-}
+    #crown {
+        transform: rotate(-60deg);
+        position: absolute;
+        top: 14px;
+        left: 46px;
+        font-size: 80px;
+    }
 
-#righteye {
-    position: absolute;
-    top: 70px;
-    left: 66px;
-    font-size: 60px;
-}
+    #lefteye {
+        position: absolute;
+        top: 50px;
+        left: 30px;
+        font-size: 60px;
+    }
 
-#title {
-    position: relative;
-    line-height: 170px;
-    font-size: 70px;
-    font-family: 'Goudy Bookletter 1911',Georgia,serif;
-    left: 20px;
-    top: 35px;
+    #righteye {
+        position: absolute;
+        top: 70px;
+        left: 66px;
+        font-size: 60px;
+    }
+
+    #title {
+        position: relative;
+        line-height: 170px;
+        font-size: 70px;
+        font-family: 'Goudy Bookletter 1911', Georgia, serif;
+        left: 20px;
+        top: 35px;
+    }
 }
 
 .collapsible-section {
