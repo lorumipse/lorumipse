@@ -65,35 +65,45 @@ var lorum = (function() {
 
 var lorumNav = (function() {
     var my = {};
+    var openSectionId = null;
+    
     function collapseSection(section) {
-        $(section).find(".collapsible-header")
+        openSectionId = null;
+        $(".collapsible-header li[data-section='" + section + "']")
             .removeClass("collapsible-header-open")
             .addClass("collapsible-header-closed");
-        $(section).find(".collapsible-body").hide("fast");
+        $(".collapsible-section[data-section='" + section + "']").hide("fast");
+        $(".collapsible-close-button").hide("fast");
     }
 
     function openSection(section) {
-        $(section).find(".collapsible-header")
+        openSectionId = section;
+        $(".collapsible-header li[data-section='" + section + "']")
             .removeClass("collapsible-header-closed")
             .addClass("collapsible-header-open");
-        $(section).find(".collapsible-body").show("fast");
+        $(".collapsible-section[data-section='" + section + "']").show("fast");
+        $(".collapsible-close-button").show("fast");
     }
 
-    function bindCollapsible(index, section) {
+    function bindCollapsible(index, item) {
         var toggleHandler = function(event) {
-            if ($(section).find(".collapsible-header-closed").length == 0) {
-                collapseSection(section);
-            } else {
-                openSection(section);
-            }
+            collapseOpenSection();
+            openSection($(item).attr("data-section"));
+        };
+        $(item).click(toggleHandler);
+    }
+
+    function collapseOpenSection() {
+        if (openSectionId) {
+            collapseSection(openSectionId);
         }
-        $(section).find(".collapsible-header").click(toggleHandler);
-        $(section).find(".collapsible-body").hide();
-        collapseSection(section);
+        $(".collapsible-close-button").hide();
     }
 
     my.init = function() {
-        $(".collapsible-section").each(bindCollapsible);
+        $(".collapsible-section").hide();
+        $(".collapsible-header li").each(bindCollapsible);
+        $(".collapsible-close-button").click(collapseOpenSection)
     };
 
     return my;
