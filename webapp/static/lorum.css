@@ -126,16 +126,14 @@
     }
 }
 
-.collapsible-section {
-    margin-left: 30px;
-    margin-bottom: 30px;
-}
-
 .collapsible-header {
     font-weight: bold;
     font-family: Arial,Verdana,sans-serif;
     font-size: 16px;
     color: #348b18;
+    padding: 0;
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 .collapsible-header li {
@@ -146,13 +144,22 @@
     cursor: pointer;
 }
 
+.collapsible-header-closed:hover {
+    border-bottom: dotted 1px;
+}
+
 /*.collapsible-header li + li:before {*/
     /*content: " ◆ ";*/
 /*}*/
 
 .collapsible-header-open {
     color: #348b18;
+    border-bottom: solid 2px;
+}
 
+.collapsible-container {
+    margin-left: 30px;
+    margin-right: 30px;
 }
 
 .collapsible-close-button {
@@ -162,6 +169,10 @@
     font-family: Arial,Verdana,sans-serif;
     color: #348b18;
     display: none;
+}
+
+.collapsible-close-button:hover {
+    cursor: pointer;
 }
 
 .collapsible-body {

@@ -91,6 +91,7 @@ var lorumNav = (function() {
             openSection($(item).attr("data-section"));
         };
         $(item).click(toggleHandler);
+        $(item).addClass("collapsible-header-closed");
     }
 
     function collapseOpenSection() {
