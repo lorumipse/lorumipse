@@ -1,9 +1,18 @@
 #!//bin/bash
 
 TARGET="${1:-heroku-deploy}"
-TO_INSTALL=(build langmodel webapp requirements.txt Procfile resource/dt-*)
 
-rm -rf $TARGET/*
+if [ "$2" == "-quick" ]; then
+    QUICK=1
+fi
+
+TO_INSTALL=(runtime.txt langmodel webapp requirements.txt Procfile resource/dt-*)
+
+if [ -z $QUICK ]; then
+    TO_INSTALL+=(build)
+    rm -rf $TARGET/*
+fi
+
 mkdir -p $TARGET
 
 for source in ${TO_INSTALL[@]}; do
