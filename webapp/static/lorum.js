@@ -1,10 +1,6 @@
 var lorum = (function() {
     var my = {};
 
-    function formatToken(token) {
-        return '<span>' + token[0] + '</span>';
-    }
-
     function formatLorum(loremData) {
         var text = "";
         var i;
@@ -20,7 +16,7 @@ var lorum = (function() {
                 if (spaceLeft) {
                     text += " ";
                 }
-                text += formatToken(token);
+                text += token[0];
             }
         }
         return text;
