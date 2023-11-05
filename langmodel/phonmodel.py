@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
+from builtins import object
 from .ngram import NGram
 import sys
 import codecs
@@ -139,5 +141,5 @@ if __name__ == "__main__":
     else:
         model = create_model_from_file(input_files)
 
-    for i in xrange(10000):
+    for i in range(10000):
         print(generate_word(model))

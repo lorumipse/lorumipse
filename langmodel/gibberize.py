@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import re
 import os
 import sys
@@ -121,7 +122,7 @@ def generate_word_with_ana(pos, infl):
 
 def correct_articles(sentence):
     corrected_sentence = []
-    for i in xrange(len(sentence)):
+    for i in range(len(sentence)):
         word, lemma, ana = sentence[i]
         if word == ARTICLE_SYMBOL and i + 1 < len(sentence):
             next_word, _, _ = sentence[i+1]

@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import os
 import sys
 import codecs
@@ -40,5 +41,5 @@ sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
-for i in xrange(1000):
+for i in range(1000):
     print(" ".join(generate_sentence()))

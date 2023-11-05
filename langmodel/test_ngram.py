@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 import unittest
 import itertools
 from .ngram import NGram
@@ -32,7 +33,7 @@ class NGramTestCase(unittest.TestCase):
         cnt = 0
         for seq in seqs:
             separated_seq = ["#"] + list(seq) + ["#"]
-            for i in xrange(len(separated_seq)-n+1):
+            for i in range(len(separated_seq)-n+1):
                 if tuple(separated_seq[i:i+n]) == tuple(ngram):
                     cnt += 1
         return cnt

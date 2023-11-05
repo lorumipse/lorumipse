@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
+from builtins import next
+from builtins import range
 import re
 import os
 import sys
@@ -36,7 +38,7 @@ def read_n_sentences(file, n):
     sentences = []
     eof = False
     while not eof:
-        for i in xrange(n):
+        for i in range(n):
             try:
                 sentence = next(sentence_iter)
                 sentences.append(sentence)
@@ -46,14 +48,14 @@ def read_n_sentences(file, n):
         if validate_sentences(sentences):
             yield sentences
         else:
-            sys.stderr.write("omitting " + " ".join(map(lambda s: " ".join(s), sentences)) + "\n")
+            sys.stderr.write("omitting " + " ".join([" ".join(s) for s in sentences]) + "\n")
         sentences = []
 
 
 def validate_sentences(sentences):
     # wrong tokenization of html entities
     for sentence in sentences:
-        for i in xrange(len(sentence) - 3):
+        for i in range(len(sentence) - 3):
             if sentence[i].startswith("&\t") and sentence[i+1].startswith("#\t") and sentence[i+2].endswith("\tNUM"):
                 return False
     # too many numbers

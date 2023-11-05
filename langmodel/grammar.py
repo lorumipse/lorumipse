@@ -2,10 +2,11 @@
 # coding=UTF-8
 # vim: set fileencoding=UTF-8
 
+from builtins import object
 import re
 import copy
 
-class Phonology :
+class Phonology(object) :
 
     phonocode = {
         u'a' : 'A--1-',
@@ -327,12 +328,12 @@ class Phonology :
     def isSybyl(cons) :
         return (cons in Phonology.is_sybyl) and (Phonology.is_sybyl[cons])
 
-class iWordformMorphology :
+class iWordformMorphology(object) :
 
     def appendSuffix(self, suffix) : pass 
     def onBeforeSuffixation(self, suffix) : pass
 
-class iWordformPhonology :
+class iWordformPhonology(object) :
 
     def isLastVowel(self) : pass
     def isVTMR(self) : pass
