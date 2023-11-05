@@ -126,16 +126,14 @@ class CVConstraint(object):
 
     def is_valid(self, word):
         c_skel = self.get_c_skel(word)
-        freq = self.c_skel_freq.get(c_skel)
+        freq = self.c_skel_freq.get(c_skel, 0)
         return freq >= self.validity_abs_freq_threshold
 
 
 if __name__ == "__main__":
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input_files = sys.argv[1:]
 
     if len(input_files) == 0:
-        sys.stdin = codecs.getreader('utf-8')(sys.stdin)
         words = read_words(sys.stdin)
         model = create_model([words])
     else:

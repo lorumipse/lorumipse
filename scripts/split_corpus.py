@@ -1,16 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 from __future__ import print_function
 from builtins import next
 from builtins import range
 import re
-import os
 import sys
 import codecs
 
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+# sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+# sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 
 SENTENCES_IN_PART = 7
 

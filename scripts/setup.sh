@@ -7,15 +7,15 @@ corpus_file=${1:-$root_dir/resource/non-pers12-xaa-10m.txt.gz}
 
 cd $root_dir
 
-if [ ! -d virtualenv ]; then
-    virtualenv virtualenv
-    . ./virtualenv/bin/activate
-    pip install -r requirements.txt
+if [ ! -d venv ]; then
+    python3 -m venv venv
+    . ./venv/bin/activate
+    pip3 install -r requirements.txt
 else
-	. ./virtualenv/bin/activate
+	. ./venv/bin/activate
 fi
 
-rm -r "$template_dir"
+rm -rf "$template_dir"
 mkdir -p "$template_dir"
 gzcat -f $corpus_file | $script_dir/split_corpus.py "$template_dir/"
 cp $root_dir/resource/init_sentence_template.txt "$template_dir/init.txt"

@@ -37,9 +37,6 @@ def generate_sentence():
     obj = affix(obj_stem, "NOUN<CAS<ACC>>")
     return [subj_det, subj, verb, u"egy", adj, obj]
 
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 for i in range(1000):
     print(" ".join(generate_sentence()))
