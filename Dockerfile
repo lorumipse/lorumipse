@@ -1,10 +1,10 @@
-FROM python:2-alpine
+FROM python:3-alpine
 
 ADD . /opt/lorumipse
 
 WORKDIR /opt/lorumipse
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 ENV PYTHONPATH .
 EXPOSE 9999
