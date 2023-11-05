@@ -1,18 +1,16 @@
-# -*- coding: utf-8 -*-
-
 import re
 
 ADD = 0
 DELETE_MATCH = 1
 
 ACC_RULES = [
-    (u"a", u"át", DELETE_MATCH),
-    (u"e", u"ét", DELETE_MATCH),
-    (u"o", u"ót", DELETE_MATCH),
-    (ur"[aáoóuú][^eéö]*(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", u"ot", ADD),
-    (ur"[öőüű][^aáeéiíoóuú]*(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", u"öt", ADD),
-    (ur"(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", u"et", ADD),
-    ("", u"t", ADD)
+    ("a", "át", DELETE_MATCH),
+    ("e", "ét", DELETE_MATCH),
+    ("o", "ót", DELETE_MATCH),
+    (r"[aáoóuú][^eéö]*(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", "ot", ADD),
+    (r"[öőüű][^aáeéiíoóuú]*(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", "öt", ADD),
+    (r"(b|c|cs|d|f|g|gy|h|k|m|p|t|ty|v|x)", "et", ADD),
+    ("", "t", ADD)
 ]
 
 
@@ -24,10 +22,10 @@ def affix(stem, ana):
 
 
 def det(word):
-    if re.match(ur"^[aáeéiíoóöőuúüű]", word.lower()):
-        return u"az"
+    if re.match(r"^[aáeéiíoóöőuúüű]", word.lower()):
+        return "az"
     else:
-        return u"a"
+        return "a"
 
 
 def apply_acc_rules(stem):

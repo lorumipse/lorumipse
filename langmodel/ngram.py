@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import range
+from builtins import object
 from collections import defaultdict
 import random
 
@@ -39,11 +42,11 @@ class NGram(object):
 
     def dump(self):
         for order in self.ngram_distr:
-            for gram, freq in order.iteritems():
-                print gram, freq
+            for gram, freq in order.items():
+                print(gram, freq)
         for order in self.trans_prob:
-            for gram, freq in order.iteritems():
-                print gram, freq
+            for gram, freq in order.items():
+                print(gram, freq)
 
     def calc_ngram_distr(self, n, sequences):
         distrib = []
@@ -69,11 +72,11 @@ class NGram(object):
         return (old_history + (new_token,))[-n:]
 
     def calc_trans_prob(self, distr):
-        total = sum([freq for ngram, freq in distr[0].iteritems() if ngram != (self.separator,)])
+        total = sum([freq for ngram, freq in distr[0].items() if ngram != (self.separator,)])
         trans_prob = []
         for order, order_distr in enumerate(distr):
             order_trans_distr = defaultdict(lambda: defaultdict(int))
-            for ngram, freq in order_distr.iteritems():
+            for ngram, freq in order_distr.items():
                 hist = ngram[:-1]
                 item = ngram[-1]
                 norm_fact = total if order == 0 else distr[order-1][hist]
@@ -85,7 +88,7 @@ class NGram(object):
     def choose(distrib):
         rnd = random.random()
         cumul_prob = 0
-        for token, prob in distrib.iteritems():
+        for token, prob in distrib.items():
             cumul_prob += prob
             if cumul_prob > rnd:
                 return token

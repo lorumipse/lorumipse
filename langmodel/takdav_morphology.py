@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from scratch import GFactory, PossessiveSuffixum, PossessorSuffixum
+from __future__ import absolute_import
+from .scratch import GFactory, PossessiveSuffixum, PossessorSuffixum
 import re
 
 def affix(stem, ana):

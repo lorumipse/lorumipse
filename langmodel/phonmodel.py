@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from ngram import NGram
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from .ngram import NGram
 import sys
 import codecs
 import random
@@ -122,20 +126,18 @@ class CVConstraint(object):
 
     def is_valid(self, word):
         c_skel = self.get_c_skel(word)
-        freq = self.c_skel_freq.get(c_skel)
+        freq = self.c_skel_freq.get(c_skel, 0)
         return freq >= self.validity_abs_freq_threshold
 
 
 if __name__ == "__main__":
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     input_files = sys.argv[1:]
 
     if len(input_files) == 0:
-        sys.stdin = codecs.getreader('utf-8')(sys.stdin)
         words = read_words(sys.stdin)
         model = create_model([words])
     else:
         model = create_model_from_file(input_files)
 
-    for i in xrange(10000):
-        print generate_word(model)
+    for i in range(10000):
+        print(generate_word(model))

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import re
 import sys
 import codecs
@@ -56,6 +57,6 @@ for line in sys.stdin:
         if token is None:
             skip_next = history_window
         else:
-            print token
+            print(token)
     else:
         skip_next -= 1

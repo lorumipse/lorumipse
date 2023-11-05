@@ -15,7 +15,7 @@ STATIC_DIR = os.path.join(SCRIPT_DIR, "static")
 
 
 with open(os.path.join(SCRIPT_DIR, "logging.yaml")) as yaml_stream:
-    log_config = yaml.load(yaml_stream)
+    log_config = yaml.load(yaml_stream, yaml.CLoader)
 logging.config.dictConfig(log_config)
 
 logger = logging.getLogger("server")

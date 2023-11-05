@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import sys
 import codecs
 import re
@@ -10,7 +13,7 @@ def read_corpus(file):
     converter = TokenConverter()
     for sentence in read_sentences(file):
         converted_sentence = [converter.convert_token(token) for token in sentence]
-        print " ".join([form if form else str(lemma) + "/" + morph for form, lemma, morph in converted_sentence])
+        print(" ".join([form if form else str(lemma) + "/" + morph for form, lemma, morph in converted_sentence]))
 
 
 def read_sentences(file):

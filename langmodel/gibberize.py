@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import re
 import os
 import sys
 import codecs
 import random
-from basic_morphology import det
-from takdav_morphology import affix
-from phonmodel import create_model_from_file, generate_word
+from .basic_morphology import det
+from .takdav_morphology import affix
+from .phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
@@ -119,7 +122,7 @@ def generate_word_with_ana(pos, infl):
 
 def correct_articles(sentence):
     corrected_sentence = []
-    for i in xrange(len(sentence)):
+    for i in range(len(sentence)):
         word, lemma, ana = sentence[i]
         if word == ARTICLE_SYMBOL and i + 1 < len(sentence):
             next_word, _, _ = sentence[i+1]
@@ -131,7 +134,7 @@ def correct_articles(sentence):
 
 
 def print_sentence(sentence):
-    print " ".join(sentence)
+    print(" ".join(sentence))
 
 
 def gibberize_file(file):

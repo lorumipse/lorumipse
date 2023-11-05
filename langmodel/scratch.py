@@ -1,5 +1,8 @@
 # coding: utf-8
-from grammar import Phonology, Wordform
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
+from .grammar import Phonology, Wordform
 import re
 
 class iSuffixumMorphology(object):
@@ -1081,7 +1084,7 @@ class Caseframe(object):
         strs = []
         for rel in self.relorder:
             strs.append(str(self.getArg(rel)))
-        return ' '.join(filter(lambda x: x, strs))
+        return ' '.join([x for x in strs if x])
 
 """ 
  * @todo
@@ -1098,7 +1101,7 @@ class SyntaxTree(object):
          strs = []
          for arg in self.args:
              strs.append(str(arg))
-         return ' '.join(filter(lambda x: x, strs))
+         return ' '.join([x for x in strs if x])
 
 class GFactory(object):
     """
@@ -1452,15 +1455,15 @@ class Test (unittest.TestCase) :
         su = GFactory.parseSuffixum(u'_Vk');
         self.assertTrue(su.isVTMR());
 
-        self.assertEquals(u'aktivista', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'ista'))))
-        self.assertEquals(u'aktivizál', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izál'))))
-        self.assertEquals(u'aktivizmus', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izmus'))))
-        self.assertEquals(u'aktivitás', unicode(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'itás'))))
-        self.assertEquals(u'miniatürizál', unicode(GFactory.parseNP(u'miniatűr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
-        self.assertEquals(u'urizál', unicode(GFactory.parseNP(u'úr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
-        self.assertEquals(u'fuzionál', unicode(GFactory.parseNP(u'fúzió').appendSuffix(GFactory.parseSuffixum(u'nál'))))
-        self.assertEquals(u'szlavista', unicode(GFactory.parseNP(u'szláv').appendSuffix(GFactory.parseSuffixum(u'ista'))))
-        self.assertEquals(u'privatizál', unicode(GFactory.parseNP(u'privát').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'aktivista', str(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'ista'))))
+        self.assertEquals(u'aktivizál', str(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'aktivizmus', str(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'izmus'))))
+        self.assertEquals(u'aktivitás', str(GFactory.parseNP(u'aktív').appendSuffix(GFactory.parseSuffixum(u'itás'))))
+        self.assertEquals(u'miniatürizál', str(GFactory.parseNP(u'miniatűr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'urizál', str(GFactory.parseNP(u'úr').appendSuffix(GFactory.parseSuffixum(u'izál'))))
+        self.assertEquals(u'fuzionál', str(GFactory.parseNP(u'fúzió').appendSuffix(GFactory.parseSuffixum(u'nál'))))
+        self.assertEquals(u'szlavista', str(GFactory.parseNP(u'szláv').appendSuffix(GFactory.parseSuffixum(u'ista'))))
+        self.assertEquals(u'privatizál', str(GFactory.parseNP(u'privát').appendSuffix(GFactory.parseSuffixum(u'izál'))))
 
     def testPlural(self):
         cases = [
@@ -1478,7 +1481,7 @@ class Test (unittest.TestCase) :
             self.assertEqual(plural, GFactory.parseNP(singular).makePlural().ortho)
 
     def checkPossessive(self, form, lemma, num, pers):
-        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(num, pers))))
+        self.assertEquals(form, str(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(num, pers))))
 
     def checkPossessives(self, lemma, forms):
         i = 0
@@ -1488,7 +1491,7 @@ class Test (unittest.TestCase) :
                 i += 1
 
     def testPossessive(self):
-        self.assertEquals(u'katonasága', unicode(GFactory.parseNP(u'katona').appendSuffix(GFactory.parseSuffixum(u'sÁg', NomenSuffixum)).appendSuffix(PossessiveSuffixum(1, 3))))
+        self.assertEquals(u'katonasága', str(GFactory.parseNP(u'katona').appendSuffix(GFactory.parseSuffixum(u'sÁg', NomenSuffixum)).appendSuffix(PossessiveSuffixum(1, 3))))
         self.checkPossessives(u'barnulás', [u'barnulásom', u'barnulásod', u'barnulása', u'barnulásunk', u'barnulásotok', u'barnulásuk'])
         self.checkPossessives(u'pad', [u'padom', u'padod', u'padja', u'padunk', u'padotok', u'padjuk'])
 
@@ -1527,10 +1530,10 @@ class Test (unittest.TestCase) :
         self.checkPossessive(u'cseppje', u'csepp', 1, 3)
 
     def checkPossPoss(self, form, lemma, a, b, c, d):
-        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(a, b, c)).appendSuffix(PossessorSuffixum(d))))
+        self.assertEquals(form, str(GFactory.parseNP(lemma).appendSuffix(PossessiveSuffixum(a, b, c)).appendSuffix(PossessorSuffixum(d))))
 
     def checkPossessor(self, form, lemma, d):
-        self.assertEquals(form, unicode(GFactory.parseNP(lemma).appendSuffix(PossessorSuffixum(d))))
+        self.assertEquals(form, str(GFactory.parseNP(lemma).appendSuffix(PossessorSuffixum(d))))
 
     def testPossessor(self):
         self.checkPossPoss(u'őseimé', u'ős', 1, 1, 3, 1)
@@ -1584,7 +1587,7 @@ class Test (unittest.TestCase) :
             if not verbforms[i]:
                 continue;
             expected = verbforms[i]
-            actual = unicode(V.makeInfinitive(* conjugation))
+            actual = str(V.makeInfinitive(* conjugation))
             self.assertEquals(expected, actual)
             i += 1
 
@@ -1658,7 +1661,7 @@ class Test (unittest.TestCase) :
             if not verbforms[i]:
                 continue;
             expected = verbforms[i]
-            actual = unicode(V.conjugate(* conjugation))
+            actual = str(V.conjugate(* conjugation))
             self.assertEquals(expected, actual)
             i += 1
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 import os
 import sys
 import codecs
-from basic_morphology import det
-from takdav_morphology import affix
-from phonmodel import create_model_from_file, generate_word
+from .basic_morphology import det
+from .takdav_morphology import affix
+from .phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
@@ -34,9 +37,6 @@ def generate_sentence():
     obj = affix(obj_stem, "NOUN<CAS<ACC>>")
     return [subj_det, subj, verb, u"egy", adj, obj]
 
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
-for i in xrange(1000):
-    print " ".join(generate_sentence())
+for i in range(1000):
+    print(" ".join(generate_sentence()))
