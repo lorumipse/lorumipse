@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import unittest
 import itertools
-from ngram import NGram
+from .ngram import NGram
 
 
 class NGramTestCase(unittest.TestCase):

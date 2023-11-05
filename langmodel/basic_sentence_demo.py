@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 import codecs
-from basic_morphology import det
-from takdav_morphology import affix
-from phonmodel import create_model_from_file, generate_word
+from .basic_morphology import det
+from .takdav_morphology import affix
+from .phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
@@ -39,4 +41,4 @@ sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 for i in xrange(1000):
-    print " ".join(generate_sentence())
+    print(" ".join(generate_sentence()))

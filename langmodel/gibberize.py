@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from __future__ import absolute_import
 import re
 import os
 import sys
 import codecs
 import random
-from basic_morphology import det
-from takdav_morphology import affix
-from phonmodel import create_model_from_file, generate_word
+from .basic_morphology import det
+from .takdav_morphology import affix
+from .phonmodel import create_model_from_file, generate_word
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 resource_dir = os.path.join(script_dir, "..", "resource")
@@ -131,7 +133,7 @@ def correct_articles(sentence):
 
 
 def print_sentence(sentence):
-    print " ".join(sentence)
+    print(" ".join(sentence))
 
 
 def gibberize_file(file):

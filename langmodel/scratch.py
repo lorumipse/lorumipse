@@ -1,5 +1,6 @@
 # coding: utf-8
-from grammar import Phonology, Wordform
+from __future__ import absolute_import
+from .grammar import Phonology, Wordform
 import re
 
 class iSuffixumMorphology(object):

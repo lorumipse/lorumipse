@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import random
 import sys
 import codecs
 import json
 import logging
-from gibberize import gibberize_file, gibberize_random_init_sentence_from_file
+from .gibberize import gibberize_file, gibberize_random_init_sentence_from_file
 
 
 INIT_TEMPLATE_FILENAME = "init.txt"
@@ -101,4 +103,4 @@ def capitalize_sentence(sentence):
 
 if __name__ == '__main__':
     _template_dir = sys.argv[1]
-    print generate_text(_template_dir)
+    print(generate_text(_template_dir))

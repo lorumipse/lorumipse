@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from ngram import NGram
+from __future__ import print_function
+from __future__ import absolute_import
+from .ngram import NGram
 import sys
 import codecs
 import random
@@ -138,4 +140,4 @@ if __name__ == "__main__":
         model = create_model_from_file(input_files)
 
     for i in xrange(10000):
-        print generate_word(model)
+        print(generate_word(model))

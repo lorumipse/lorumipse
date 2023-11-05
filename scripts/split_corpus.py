@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import re
 import os
 import sys
@@ -21,7 +22,7 @@ def read_sentence(file):
     for line in file:
         stripped = line.strip()
         if sentence_delimiter_re.match(stripped):
-            print "sentence", stripped
+            print("sentence", stripped)
             if lines:
                 yield lines
                 lines = []

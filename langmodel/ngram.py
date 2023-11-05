@@ -1,3 +1,4 @@
+from __future__ import print_function
 from collections import defaultdict
 import random
 
@@ -40,10 +41,10 @@ class NGram(object):
     def dump(self):
         for order in self.ngram_distr:
             for gram, freq in order.iteritems():
-                print gram, freq
+                print(gram, freq)
         for order in self.trans_prob:
             for gram, freq in order.iteritems():
-                print gram, freq
+                print(gram, freq)
 
     def calc_ngram_distr(self, n, sequences):
         distrib = []
