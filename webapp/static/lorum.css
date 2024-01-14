@@ -126,6 +126,10 @@
     }
 }
 
+#logo {
+    font-family: Times;
+}
+
 .collapsible-header {
     font-weight: bold;
     font-family: Arial, Verdana, sans-serif;
@@ -337,6 +341,62 @@
 .moreButton:active {
     position: relative;
     top: 1px;
+}
+
+#progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress-indicator {
+    position: relative;
+    height: 26px;
+    width: 42px;
+    margin: 6px;
+}
+
+.progress-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: black;
+}
+
+.progress-left {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    animation: 1s infinite alternate yoyo-left;
+    animation-timing-function: linear;
+}
+
+.progress-right {
+    position: absolute;
+    left: 36px;
+    top: 20px;
+    animation: 1s infinite alternate yoyo-right;
+    animation-timing-function: linear;
+}
+
+@keyframes yoyo-left {
+    from {
+        top: 0px;
+    }
+
+    to {
+        top: 20px;
+    }
+}
+
+@keyframes yoyo-right {
+    from {
+        top: 20px;
+    }
+
+    to {
+        top: 0px;
+    }
 }
 
 /* latin */

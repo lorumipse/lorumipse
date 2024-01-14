@@ -84,7 +84,9 @@ const lorum = (function () {
 
   function hideControlTemporarily() {
     $("#control").hide(0);
+    $("#progress").show();
     setTimeout(() => {
+      $("#progress").hide();
       $("#control").show();
       window.scrollTo(0, document.body.scrollHeight);
     }, HIDE_CONTROL_FOR_SECS * 1000);
