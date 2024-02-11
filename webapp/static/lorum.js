@@ -63,6 +63,9 @@ const lorum = (function () {
 
   my.handleMore = (trg_spec) => {
     ++numMoreClicked;
+    smartlook("track", "more", {
+      numMoreClicked,
+    });
     if ((numMoreClicked + 1) % SHOW_DONATION_BANNER_AFTER_N_MORE == 0) {
       showDonationBanner(trg_spec);
     } else {
@@ -72,13 +75,21 @@ const lorum = (function () {
     }
   };
 
+  let donationBannerOrd = 0;
+
   function showDonationBanner(trg_spec) {
+    smartlook("target", "show_donation_banner", {});
     hideControlTemporarily();
-    const clone = $("#donation-banner-master")
-      .clone()
-      .prop("id", "donation-banner-clone");
+    const bannerId = `donation-banner-clone-${donationBannerOrd}`;
+    const clone = $("#donation-banner-master").clone().prop("id", bannerId);
     const target = $(trg_spec);
     target.append(clone);
+    $(`#${bannerId} .donation-button`).click(() => {
+      smartlook("target", "donation_clicked", {
+        bannerOrd: donationBannerOrd,
+      });
+    });
+    ++donationBannerOrd;
     window.scrollTo(0, document.body.scrollHeight);
   }
 
@@ -143,6 +154,7 @@ var lorumNav = (function () {
 })();
 
 $(function () {
+  smartlook("track", "init");
   lorumNav.init();
   const target = "#lorumtext";
   $("#more").click(function () {
